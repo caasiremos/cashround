@@ -8,6 +8,8 @@ class Wallet extends Model
 {
     protected $fillable = [
         'member_id',
+        'group_id',
+        'account_number',
         'balance',
     ];
 
@@ -23,5 +25,15 @@ class Wallet extends Model
     public function member()
     {
         return $this->belongsTo(Member::class);
+    }
+
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
+
+    public function generalLedgerAccounts()
+    {
+        return $this->hasMany(GeneralLedgerAccount::class);
     }
 }

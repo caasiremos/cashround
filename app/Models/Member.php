@@ -49,4 +49,9 @@ class Member extends Authenticatable
     {
         return $this->belongsToMany(Group::class);
     }
+
+    public function generalLedgerAccounts()
+    {
+        return $this->hasMany(GeneralLedgerAccount::class);
+    }
 }

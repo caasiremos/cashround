@@ -15,4 +15,14 @@ class Group extends Model
     {
         return $this->belongsToMany(Member::class);
     }
+
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function generalLedgerAccounts()
+    {
+        return $this->hasMany(GeneralLedgerAccount::class);
+    }
 }

@@ -2,8 +2,12 @@
 
 namespace App\Repositories;
 
+use App\Models\GeneralLedgerAccount;
 use App\Models\Group;
 use App\Models\Member;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class MemberRepository
 {
@@ -29,10 +33,35 @@ class MemberRepository
         return Member::find($id);
     }
 
-    public function createMember(array $data): Member
+    /**
+     * Create a new member
+     *
+     * @param array $data
+     * @return Member
+     */
+    public function createMember(array $data): void
     {
-        $member = Member::create($data);
-        $member->wallet()->create();
-        return $member;
+        DB::transaction(function () use ($data) {
+            $member = Member::create($data);
+            $member->wallet()->create();
+            $this->createGeneralLedgerAccount($member);
+        });
+    }
+
+    /**
+     * Create a new general ledger account for a member
+     *
+     * @param Member $member
+     * @return GeneralLedgerAccount
+     */
+    public function createGeneralLedgerAccount(Member $member): GeneralLedgerAccount
+    {
+        return $member->generalLedgerAccounts()->create([
+            'name' => 'ACC - ' . $member->first_name . ' ' . $member->last_name,
+            'slug' => Str::slug('ACC - ' . $member->first_name . ' ' . $member->last_name) . '-' . $member->id,
+            'account_type' => 'liability',
+            'wallet_id' => $member->wallet->id,
+            'member_id' => $member->id
+        ]);
     }
 }
