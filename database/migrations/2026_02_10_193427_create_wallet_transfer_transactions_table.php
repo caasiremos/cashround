@@ -17,8 +17,10 @@ return new class extends Migration
             $table->foreignId('destination_wallet_id')->constrained('wallets')->cascadeOnDelete();
             $table->foreignId('member_id')->constrained()->cascadeOnDelete();
             $table->foreignId('transaction_type_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('source_general_ledger_account_id')->constrained('general_ledger_accounts')->cascadeOnDelete();
-            $table->foreignId('destination_general_ledger_account_id')->constrained('general_ledger_accounts')->cascadeOnDelete();
+            $table->unsignedBigInteger('source_general_ledger_account_id');
+            $table->unsignedBigInteger('destination_general_ledger_account_id');
+            $table->foreign('source_general_ledger_account_id', 'wtt_source_gl_account_fk')->references('id')->on('general_ledger_accounts')->cascadeOnDelete();
+            $table->foreign('destination_general_ledger_account_id', 'wtt_dest_gl_account_fk')->references('id')->on('general_ledger_accounts')->cascadeOnDelete();
             $table->decimal('amount', 19, 4);
             $table->decimal('transaction_fee', 19, 4)->default(0);
             $table->decimal('service_fee', 19, 4)->default(0);

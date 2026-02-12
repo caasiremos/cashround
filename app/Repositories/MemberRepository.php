@@ -60,6 +60,7 @@ class MemberRepository
             return $member;
         });
     }
+    
 
     /**
      * Create a new general ledger account for a member

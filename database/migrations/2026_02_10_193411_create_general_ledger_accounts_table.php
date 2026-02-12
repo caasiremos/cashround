@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('general_ledger_accounts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('wallet_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('member_id')->constrained()->cascadeOnDelete()->nullable();
-            $table->foreignId('group_id')->constrained()->cascadeOnDelete()->nullable();
+            $table->foreignId('member_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('group_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('slug')->unique();
             $table->enum('account_type', ['asset', 'liability', 'income', 'expense', 'equity'])->default('asset');

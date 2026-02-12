@@ -11,6 +11,8 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/member/login', [MemberLoginApiController::class, 'login']);
+Route::post('/member/logout', [MemberLoginApiController::class, 'logout']);
+Route::post('/member/register', [MemberApiController::class, 'register']);
 
 Route::group(['prefix' => 'groups'], function () {
     Route::post('/', [GroupApiController::class, 'createGroup']);
@@ -19,7 +21,6 @@ Route::group(['prefix' => 'groups'], function () {
 })->middleware('auth:members');
 
 Route::group(['prefix' => 'members'], function () {
-    Route::post('/', [MemberApiController::class, 'createMember']);
     Route::get('/group/{group}', [MemberApiController::class, 'getGroupMembers']);
     Route::get('/{id}', [MemberApiController::class, 'getMemberById']);
 })->middleware('auth:members');

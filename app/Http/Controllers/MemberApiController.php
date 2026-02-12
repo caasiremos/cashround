@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\MemberFormRequest;
 use App\Http\Responses\ApiErrorResponse;
 use App\Services\MemberService;
 use App\Http\Responses\ApiSuccessResponse;
@@ -20,7 +21,7 @@ class MemberApiController extends Controller
      * @param Request $request
      * @return ApiSuccessResponse
      */
-    public function createMember(Request $request)
+    public function register(MemberFormRequest $request)
     {
         $member = $this->memberService->createMember($request->all());
 

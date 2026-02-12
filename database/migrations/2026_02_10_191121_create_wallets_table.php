@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('wallets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('member_id')->constrained()->cascadeOnDelete()->nullable();
-            $table->foreignId('group_id')->constrained()->cascadeOnDelete()->nullable();
+            $table->foreignId('member_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('group_id')->nullable()->constrained()->cascadeOnDelete();
             $table->string('account_number')->unique();
             $table->decimal('balance', 10, 2)->default(0);
             $table->timestamps();

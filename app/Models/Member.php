@@ -7,7 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use Illuminate\Support\Facades\Hash;
 
 class Member extends Authenticatable
 {
@@ -18,17 +18,26 @@ class Member extends Authenticatable
         'last_name',
         'email',
         'password',
-        'phone',
+        'phone_number',
         'country',
     ];
 
     protected $hidden = [
         'password',
+        'created_at',
+        'updated_at',
     ];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    public static function boot()
+    {
+        parent::boot();
+        static::creating(function ($member) {
+            $member->password = Hash::make($member->password);
+        });
+    }
 
     public function wallet()
     {

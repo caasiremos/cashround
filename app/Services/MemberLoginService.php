@@ -27,16 +27,16 @@ class MemberLoginService
             throw new ExpectedException('Invalid credentials');
         }
 
-        if (!$member->hasVerifiedEmail()) {
-            throw new ExpectedException('Please verify your email address before logging in.');
-        }
+        // if (!$member->hasVerifiedEmail()) {
+        //     throw new ExpectedException('Please verify your email address before logging in.');
+        // }
 
         $token = $member->createToken('auth_token')->plainTextToken;
 
         return [
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'member' => $member->only('id', 'first_name', 'last_name', 'email', 'phone'),
+            'member' => $member->only('id', 'first_name', 'last_name', 'email', 'phone_number'),
         ];
     }
 

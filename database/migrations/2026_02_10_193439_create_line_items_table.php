@@ -25,7 +25,6 @@ return new class extends Migration
 
             $table->index('general_ledger_account_id');
             $table->index('journal_entry_id');
-            $table->index('is_reversal');
         });
     }
 

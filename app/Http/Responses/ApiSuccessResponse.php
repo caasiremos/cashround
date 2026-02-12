@@ -29,7 +29,7 @@ class ApiSuccessResponse implements Responsable
         if (is_array($this->logMessage)) {
             $this->logMessage = json_encode($this->logMessage);
         }
-        Logger::logInfo($this->logMessage);
+        Logger::info($this->logMessage);
 
         return response()->json([
             'data' => $this->data,

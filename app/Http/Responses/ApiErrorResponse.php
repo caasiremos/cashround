@@ -43,10 +43,12 @@ class ApiErrorResponse implements Responsable
                 'line' => $this->throwable->getLine(),
             ];
         }
-        
-        Logger::logException($this->throwable);
 
-        if(get_class($this->throwable) === ExpectedException::class){
+        if ($this->throwable) {
+            Logger::error($this->throwable);
+        }
+
+        if ($this->throwable && $this->throwable instanceof ExpectedException) {
             $this->code = 400;
         }
 
