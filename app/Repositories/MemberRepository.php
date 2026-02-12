@@ -26,11 +26,22 @@ class MemberRepository
      * Get a member by id
      *
      * @param int $id
-     * @return Member
+     * @return Member|null
      */
-    public function getMemberById(int $id): Member
+    public function getMemberById(int $id): ?Member
     {
         return Member::find($id);
+    }
+
+    /**
+     * Get a member by email
+     *
+     * @param string $email
+     * @return Member|null
+     */
+    public function findByEmail(string $email): ?Member
+    {
+        return Member::query()->where('email', $email)->first();
     }
 
     /**
@@ -39,12 +50,14 @@ class MemberRepository
      * @param array $data
      * @return Member
      */
-    public function createMember(array $data): void
+    public function createMember(array $data): Member
     {
-        DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data) {
             $member = Member::create($data);
             $member->wallet()->create();
             $this->createGeneralLedgerAccount($member);
+
+            return $member;
         });
     }
 

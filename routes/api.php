@@ -1,8 +1,25 @@
 <?php
 
+use App\Http\Controllers\GroupApiController;
+use App\Http\Controllers\MemberApiController;
+use App\Http\Controllers\MemberLoginApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+Route::post('/member/login', [MemberLoginApiController::class, 'login']);
+
+Route::group(['prefix' => 'groups'], function () {
+    Route::post('/', [GroupApiController::class, 'createGroup']);
+    Route::get('/{group}', [GroupApiController::class, 'getGroupById']);
+    Route::get('/{group}/members', [GroupApiController::class, 'getGroupMembers']);
+})->middleware('auth:members');
+
+Route::group(['prefix' => 'members'], function () {
+    Route::post('/', [MemberApiController::class, 'createMember']);
+    Route::get('/group/{group}', [MemberApiController::class, 'getGroupMembers']);
+    Route::get('/{id}', [MemberApiController::class, 'getMemberById']);
+})->middleware('auth:members');
