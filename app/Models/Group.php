@@ -52,4 +52,14 @@ class Group extends Model
     {
         return $this->hasMany(GeneralLedgerAccount::class);
     }
+
+    public function invites()
+    {
+        return $this->hasMany(GroupInvite::class, 'group_id');
+    }
+
+    public function owner()
+    {
+        return $this->belongsTo(Member::class, 'owner_id');
+    }
 }

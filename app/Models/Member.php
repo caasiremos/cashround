@@ -63,4 +63,14 @@ class Member extends Authenticatable
     {
         return $this->hasMany(GeneralLedgerAccount::class);
     }
+
+    public function groupInvitesSent()
+    {
+        return $this->hasMany(GroupInvite::class, 'inviter_id');
+    }
+
+    public function groupInvitesReceived()
+    {
+        return $this->hasMany(GroupInvite::class, 'member_id');
+    }
 }

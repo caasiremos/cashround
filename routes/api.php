@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\GroupApiController;
+use App\Http\Controllers\GroupInviteApiController;
 use App\Http\Controllers\MemberApiController;
 use App\Http\Controllers\MemberLoginApiController;
 use Illuminate\Http\Request;
@@ -18,6 +19,17 @@ Route::prefix('groups')->middleware('auth:members')->group(function () {
     Route::post('/', [GroupApiController::class, 'createGroup']);
     Route::get('/{group}', [GroupApiController::class, 'getGroupById']);
     Route::get('/{group}/members', [GroupApiController::class, 'getGroupMembers']);
+    Route::post('/{group}/invites', [GroupInviteApiController::class, 'sendInvite']);
+});
+
+// Invite by token (no auth) — for mobile deep link preview
+Route::get('/invites/by-token/{token}', [GroupInviteApiController::class, 'getByToken']);
+
+Route::prefix('invites')->middleware('auth:members')->group(function () {
+    Route::get('/', [GroupInviteApiController::class, 'myPendingInvites']);
+    Route::post('/accept-by-token', [GroupInviteApiController::class, 'acceptByToken']);
+    Route::post('/{invite}/accept', [GroupInviteApiController::class, 'accept']);
+    Route::post('/{invite}/decline', [GroupInviteApiController::class, 'decline']);
 });
 
 Route::prefix('members')->middleware('auth:members')->group(function () {
