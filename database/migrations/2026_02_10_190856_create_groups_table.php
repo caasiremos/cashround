@@ -13,8 +13,16 @@ return new class extends Migration
     {
         Schema::create('groups', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('owner_id')->constrained('members')->cascadeOnDelete();
             $table->string('name');
             $table->string('slug')->unique();
+            $table->enum('frequency', ['daily', 'weekly', 'monthly', 'yearly'])->default('monthly');
+            $table->date('start_date');
+            $table->date('end_date')->nullable();
+            $table->decimal('amount', 10, 2)->default(0);
+            $table->decimal('balance', 10, 2)->default(0);
+            $table->text('description')->nullable();
+            $table->string('status')->default('active');
             $table->timestamps();
         });
     }

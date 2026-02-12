@@ -8,8 +8,35 @@ class Group extends Model
 {
     protected $fillable = [
         'name',
+        'description',
         'slug',
+        'frequency',
+        'start_date',
+        'end_date',
+        'amount',
+        'balance',
+        'status',
+        'owner_id',
     ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
+
+    protected $with = [
+        'members',
+        'wallet',
+        'generalLedgerAccounts',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'start_date' => 'date:Y-m-d',
+            'end_date' => 'date:Y-m-d',
+        ];
+    }
 
     public function members()
     {

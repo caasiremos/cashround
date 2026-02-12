@@ -11,16 +11,16 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/member/login', [MemberLoginApiController::class, 'login']);
-Route::post('/member/logout', [MemberLoginApiController::class, 'logout']);
+Route::post('/member/logout', [MemberLoginApiController::class, 'logout'])->middleware('auth:members');
 Route::post('/member/register', [MemberApiController::class, 'register']);
 
-Route::group(['prefix' => 'groups'], function () {
+Route::prefix('groups')->middleware('auth:members')->group(function () {
     Route::post('/', [GroupApiController::class, 'createGroup']);
     Route::get('/{group}', [GroupApiController::class, 'getGroupById']);
     Route::get('/{group}/members', [GroupApiController::class, 'getGroupMembers']);
-})->middleware('auth:members');
+});
 
-Route::group(['prefix' => 'members'], function () {
+Route::prefix('members')->middleware('auth:members')->group(function () {
     Route::get('/group/{group}', [MemberApiController::class, 'getGroupMembers']);
     Route::get('/{id}', [MemberApiController::class, 'getMemberById']);
-})->middleware('auth:members');
+});

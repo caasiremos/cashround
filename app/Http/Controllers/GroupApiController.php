@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\GroupFormRequest;
 use App\Http\Responses\ApiSuccessResponse;
 use Illuminate\Http\Request;
 use App\Services\GroupService;
@@ -19,7 +20,7 @@ class GroupApiController extends Controller
      * @param Request $request
      * @return ApiSuccessResponse
      */
-    public function createGroup(Request $request)
+    public function createGroup(GroupFormRequest $request)
     {
         $group = $this->groupService->createGroup($request->all());
 

@@ -27,11 +27,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-         $exceptions->render(function (ExpectedException $e) {
-            return new ApiErrorResponse($e->getMessage(), null, null, Response::HTTP_BAD_REQUEST);
+        $exceptions->render(function (ExpectedException $e, $request) {
+            return (new ApiErrorResponse($e->getMessage(), $e, null, Response::HTTP_BAD_REQUEST))->toResponse($request);
         });
 
-        $exceptions->render(function (Throwable $e) {
-            return new ApiErrorResponse($e->getMessage(), null, null, Response::HTTP_INTERNAL_SERVER_ERROR);
+        $exceptions->render(function (Throwable $e, $request) {
+            return (new ApiErrorResponse($e->getMessage(), $e, null, Response::HTTP_INTERNAL_SERVER_ERROR))->toResponse($request);
         });
     })->create();
