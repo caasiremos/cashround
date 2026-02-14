@@ -15,6 +15,18 @@ class GroupApiController extends Controller
     }
 
     /**
+     * Get the wallet balance of a group
+     *
+     * @param Request $request
+     * @return ApiSuccessResponse
+     */
+    public function getGroupWalletBalance(Group $group)
+    {
+        $balance = $this->groupService->getGroupWalletBalance($group);
+        return new ApiSuccessResponse($balance, 'Group wallet balance fetched successfully');
+    }
+
+    /**
      * Get the groups of a member
      *
      * @param Request $request

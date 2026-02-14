@@ -13,6 +13,16 @@ class GroupService
         private GroupRepository $groupRepository,
     ) {
     }
+    /**
+     * Get the wallet balance of a group
+     *
+     * @param Group $group
+     * @return float
+     */
+    public function getGroupWalletBalance(Group $group): float
+    {
+        return $this->groupRepository->getGroupWalletBalance($group);
+    }
 
     /**
      * Get the groups of a member

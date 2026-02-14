@@ -13,6 +13,17 @@ use Illuminate\Support\Str;
 class GroupRepository
 {
     /**
+     * Get the wallet balance of a group
+     *
+     * @param Group $group
+     * @return float
+     */
+    public function getGroupWalletBalance(Group $group): float
+    {
+        return $group->wallet->computeBalance();
+    }
+   
+    /**
      * Get the groups of a member
      *
      * @param Member $member

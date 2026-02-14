@@ -22,6 +22,7 @@ Route::prefix('groups')->middleware('auth:members')->group(function () {
     Route::get('/{group}', [GroupApiController::class, 'getGroupById']);
     Route::get('/{group}/members', [GroupApiController::class, 'getGroupMembers']);
     Route::post('/{group}/invites', [GroupInviteApiController::class, 'sendInvite']);
+    Route::get('/{group}/wallet-balance', [GroupApiController::class, 'getGroupWalletBalance']);
 });
 
 // Invite by token (no auth) — for mobile deep link preview
