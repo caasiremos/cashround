@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\GroupFormRequest;
 use App\Http\Responses\ApiSuccessResponse;
+use App\Models\Group;
 use Illuminate\Http\Request;
 use App\Services\GroupService;
 
