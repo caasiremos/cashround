@@ -22,7 +22,7 @@ class GroupRepository
     {
         return $group->members;
     }
-    
+
     /**
      * Create a new group
      *
@@ -46,7 +46,7 @@ class GroupRepository
 
             return $group;
         });
-    }  
+    }
 
     /**
      * Create a new wallet for a group
@@ -70,7 +70,7 @@ class GroupRepository
         return $group->generalLedgerAccounts()->create([
             'name' => 'ACC - ' . $group->name,
             'slug' => Str::slug('ACC - ' . $group->name) . '-' . $group->id,
-            'account_type' => 'asset',
+            'account_type' => 'liability',
             'wallet_id' => $group->wallet->id,
             'group_id' => $group->id
         ]);
