@@ -20,6 +20,8 @@ class Member extends Authenticatable
         'password',
         'phone_number',
         'country',
+        'verification_code',
+        'verification_code_expires_at',
     ];
 
     protected $hidden = [
@@ -30,6 +32,7 @@ class Member extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'verification_code_expires_at' => 'datetime',
     ];
     public static function boot()
     {

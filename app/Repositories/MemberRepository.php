@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Jobs\SendVerificationCodeEmailJob;
 use App\Models\GeneralLedgerAccount;
 use App\Models\Group;
 use App\Models\Member;
@@ -56,6 +57,14 @@ class MemberRepository
             $member = Member::create($data);
             $member->wallet()->create();
             $this->createGeneralLedgerAccount($member);
+
+            $verificationCode = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+            $member->update([
+                'verification_code' => $verificationCode,
+                'verification_code_expires_at' => now()->addMinutes(15),
+            ]);
+
+            SendVerificationCodeEmailJob::dispatch($member);
 
             return $member;
         });
