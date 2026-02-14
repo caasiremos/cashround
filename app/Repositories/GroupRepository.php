@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\GeneralLedgerAccount;
 use App\Models\Group;
+use App\Models\Member;
 use App\Models\Wallet;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,16 @@ use Illuminate\Support\Str;
 
 class GroupRepository
 {
+    /**
+     * Get the groups of a member
+     *
+     * @param Member $member
+     * @return Collection
+     */
+    public function getMemberGroups(Member $member): Collection
+    {
+        return $member->groups;
+    }
 
     /**
      * Get the members of a group
@@ -43,6 +54,7 @@ class GroupRepository
             ]);
             $this->createGroupWallet($group);
             $this->createGroupGeneralLedgerAccount($group);
+            $group->members()->attach($group->owner_id);
 
             return $group;
         });

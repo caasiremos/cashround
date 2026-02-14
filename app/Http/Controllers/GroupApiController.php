@@ -15,6 +15,18 @@ class GroupApiController extends Controller
     }
 
     /**
+     * Get the groups of a member
+     *
+     * @param Request $request
+     * @return ApiSuccessResponse
+     */
+    public function getMemberGroups()
+    {
+        $groups = $this->groupService->getMemberGroups(auth()->user());
+        return new ApiSuccessResponse($groups, 'Groups fetched successfully');
+    }
+
+    /**
      * Create a new group
      *
      * @param Request $request

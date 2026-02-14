@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Group;
+use App\Models\Member;
 use App\Repositories\GroupRepository;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -11,6 +12,17 @@ class GroupService
     public function __construct(
         private GroupRepository $groupRepository,
     ) {
+    }
+
+    /**
+     * Get the groups of a member
+     *
+     * @param Member $member
+     * @return Collection
+     */
+    public function getMemberGroups(Member $member): Collection
+    {
+        return $this->groupRepository->getMemberGroups($member);
     }
 
     /**
