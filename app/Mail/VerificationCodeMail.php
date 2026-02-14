@@ -26,7 +26,7 @@ class VerificationCodeMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: config('app.name') . ' – Your verification code',
+            subject: 'Cashround - Your verification code',
         );
     }
 
