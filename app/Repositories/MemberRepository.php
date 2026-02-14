@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Exceptions\ExpectedException;
 use App\Jobs\SendVerificationCodeEmailJob;
 use App\Models\GeneralLedgerAccount;
 use App\Models\Group;
@@ -9,6 +10,7 @@ use App\Models\Member;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 
 class MemberRepository
 {
@@ -35,17 +37,6 @@ class MemberRepository
     }
 
     /**
-     * Get a member by email
-     *
-     * @param string $email
-     * @return Member|null
-     */
-    public function findByEmail(string $email): ?Member
-    {
-        return Member::query()->where('email', $email)->first();
-    }
-
-    /**
      * Create a new member
      *
      * @param array $data
@@ -69,7 +60,33 @@ class MemberRepository
             return $member;
         });
     }
-    
+    /**
+     * Confirm a verification code
+     *
+     * @param Member $member
+     * @param int $code
+     * @return Member
+     */
+    public function confirmVerificationCode(Request $request): Member
+    {
+        $member = Member::query()->where('email', $request->email)->first();
+        if (!$member) {
+            throw new ExpectedException('Member not found');
+        }
+        if ($member->verification_code !== $request->code) {
+            throw new ExpectedException('Invalid verification code');
+        }
+
+        if ($member->verification_code_expires_at < now()) {
+            throw new ExpectedException('Verification code expired');
+        }
+
+        $member->update([
+            'email_verified_at' => now(),
+        ]);
+
+        return $member;
+    }
 
     /**
      * Create a new general ledger account for a member

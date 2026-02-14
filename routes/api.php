@@ -14,6 +14,7 @@ Route::get('/user', function (Request $request) {
 Route::post('/member/login', [MemberLoginApiController::class, 'login']);
 Route::post('/member/logout', [MemberLoginApiController::class, 'logout'])->middleware('auth:members');
 Route::post('/member/register', [MemberApiController::class, 'register']);
+Route::post('/member/confirm-verification-code', [MemberApiController::class, 'confirmVerificationCode']);
 
 Route::prefix('groups')->middleware('auth:members')->group(function () {
     Route::post('/', [GroupApiController::class, 'createGroup']);

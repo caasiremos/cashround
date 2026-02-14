@@ -29,6 +29,17 @@ class MemberApiController extends Controller
     }
 
     /**
+     * Confirm a verification code
+     *
+     * @param Request $request  
+     * @return ApiSuccessResponse
+     */
+    public function confirmVerificationCode(Request $request)
+    {
+        $member = $this->memberService->confirmVerificationCode($request);
+        return new ApiSuccessResponse($member, 'Verification code confirmed successfully');
+    }
+    /**
      * Get all members of a group
      *
      * @param Request $request

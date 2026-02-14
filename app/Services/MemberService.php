@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Exceptions\ExpectedException;
 use App\Models\Group;
 use App\Models\Member;
 use App\Repositories\MemberRepository;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Request;
 
 class MemberService
 {
@@ -22,6 +24,20 @@ class MemberService
     public function createMember(array $data)
     {
         return $this->memberRepository->createMember($data);
+    }
+
+    /**
+     * Confirm a verification code
+     *
+     * @param Request $request
+     * @return Member
+     */
+    public function confirmVerificationCode(Request $request): Member
+    {
+        if(!$request->has('code')) {
+            throw new ExpectedException('Verification code is required');
+        }
+        return $this->memberRepository->confirmVerificationCode($request);
     }
 
     /**

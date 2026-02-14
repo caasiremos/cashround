@@ -21,6 +21,7 @@ class Member extends Authenticatable
         'phone_number',
         'country',
         'verification_code',
+        'email_verified_at',
         'verification_code_expires_at',
     ];
 
