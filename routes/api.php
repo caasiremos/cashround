@@ -34,7 +34,8 @@ Route::prefix('invites')->middleware('auth:members')->group(function () {
     Route::post('/{invite}/decline', [GroupInviteApiController::class, 'decline']);
 });
 
-Route::prefix('members')->middleware('auth:members')->group(function () {
+Route::prefix('member')->middleware('auth:members')->group(function () {
+    Route::get('/wallet-balance', [MemberApiController::class, 'getWalletBalance']);
     Route::get('/group/{group}', [MemberApiController::class, 'getGroupMembers']);
     Route::get('/{id}', [MemberApiController::class, 'getMemberById']);
 });

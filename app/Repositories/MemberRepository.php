@@ -15,6 +15,16 @@ use Illuminate\Http\Request;
 class MemberRepository
 {
     /**
+     * Get the wallet balance of the member
+     *
+     * @param Member $member
+     * @return float
+     */
+    public function getWalletBalance(Member $member): float
+    {
+        return $member->wallet->computeBalance();
+    }
+    /**
      * Get all members of a group
      *
      * @param Group $group

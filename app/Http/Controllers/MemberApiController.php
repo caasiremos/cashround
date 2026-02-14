@@ -14,6 +14,17 @@ class MemberApiController extends Controller
         private MemberService $memberService,
     ) {
     }
+    /**
+     * Get the wallet balance of the member
+     *
+     * @return ApiSuccessResponse
+     */
+    public function getWalletBalance()
+    {
+        $balance = $this->memberService->getWalletBalance(auth()->user());
+
+        return new ApiSuccessResponse($balance, 'Wallet balance fetched successfully');
+    }
 
     /**
      * Create a new member
