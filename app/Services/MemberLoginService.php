@@ -21,7 +21,7 @@ class MemberLoginService
      */
     public function login(string $email, string $password): array
     {
-        $member = $this->memberRepository->findByEmail($email);
+        $member = Member::query()->where('email', $email)->first();
 
         if (!$member || !Hash::check($password, $member->password)) {
             throw new ExpectedException('Invalid credentials');
