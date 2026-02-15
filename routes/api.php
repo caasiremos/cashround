@@ -48,5 +48,6 @@ Route::prefix('member')->middleware('auth:members')->group(function () {
 Route::prefix('wallet-transactions')->middleware('auth:members')->group(function () {
     Route::post('/member-to-member', [WalletTransactionApiController::class, 'memberToMember']);
     Route::post('/group-to-member', [WalletTransactionApiController::class, 'groupToMember']);
+    Route::post('/confirm-group-to-member', [WalletTransactionApiController::class, 'confirmGroupToMember']);
     Route::post('/member-to-group', [WalletTransactionApiController::class, 'memberToGroup']);
 });

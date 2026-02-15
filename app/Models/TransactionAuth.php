@@ -19,4 +19,9 @@ class TransactionAuth extends Model
     {
         return $this->belongsTo(Group::class);
     }
+
+    public function walletTransaction()
+    {
+        return $this->belongsTo(WalletTransaction::class);
+    }
 }
