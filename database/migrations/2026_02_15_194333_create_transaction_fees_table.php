@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('transaction_types', function (Blueprint $table) {
+        Schema::create('transaction_fees', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->boolean('is_active')->default(true)->index();
+            $table->string('provider');
+            $table->decimal('min_amount', 19, 4);
+            $table->decimal('max_amount', 19, 4);
+            $table->decimal('provider_fee', 19, 4);
+            $table->decimal('service_fee', 19, 4);
+            $table->string('transaction_type');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('transaction_types');
+        Schema::dropIfExists('transaction_fees');
     }
 };

@@ -15,18 +15,18 @@ return new class extends Migration
             $table->id();
             $table->foreignId('wallet_id')->constrained()->cascadeOnDelete();
             $table->foreignId('member_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('transaction_type_id')->constrained()->cascadeOnDelete();
-            $table->string('transaction_name')->nullable();
+            $table->string('transaction_type')->nullable();
             $table->string('phone_number');
             $table->decimal('amount', 19, 4);
-            $table->decimal('transaction_fee', 19, 4)->default(0);
+            $table->decimal('provider_fee', 19, 4)->default(0);
             $table->decimal('service_fee', 19, 4)->default(0);
-            $table->string('status'); // PENDING, SUCCESSFUL, FAILED
-            $table->string('telco_transaction_id')->nullable();
+            $table->string('internal_status'); // PENDING, SUCCESSFUL, FAILED
+            $table->string('internal_id')->nullable();
+            $table->string('external_status')->nullable();
             $table->string('external_id')->unique();
             $table->text('error_message')->nullable();
-            $table->softDeletes();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

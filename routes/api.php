@@ -4,6 +4,8 @@ use App\Http\Controllers\GroupApiController;
 use App\Http\Controllers\GroupInviteApiController;
 use App\Http\Controllers\MemberApiController;
 use App\Http\Controllers\MemberLoginApiController;
+use App\Http\Controllers\MomoTransactionApiController;
+use App\Http\Controllers\WalletTransactionApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,4 +41,11 @@ Route::prefix('member')->middleware('auth:members')->group(function () {
     Route::get('/wallet-balance', [MemberApiController::class, 'getWalletBalance']);
     Route::get('/group/{group}', [MemberApiController::class, 'getGroupMembers']);
     Route::get('/{id}', [MemberApiController::class, 'getMemberById']);
+    Route::get('/deposit', [MomoTransactionApiController::class, 'deposit']);
+});
+
+Route::prefix('wallet-transactions')->middleware('auth:members')->group(function () {
+    Route::post('/member-to-member', [WalletTransactionApiController::class, 'memberToMember']);
+    Route::post('/group-to-member', [WalletTransactionApiController::class, 'groupToMember']);
+    Route::post('/member-to-group', [WalletTransactionApiController::class, 'memberToGroup']);
 });

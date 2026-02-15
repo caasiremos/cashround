@@ -4,16 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class WalletTransferTransaction extends Model
+class WalletTransaction extends Model
 {
     protected $fillable = [
         'source_wallet_id',
         'destination_wallet_id',
         'member_id',
-        'transaction_type_id',
-        'source_general_ledger_account_id',
-        'destination_general_ledger_account_id',
+        'transaction_type',
         'amount',
+        'service_fee',
+        'status',
+        'transaction_id',
     ];
 
     public function sourceWallet()

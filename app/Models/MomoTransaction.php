@@ -9,12 +9,16 @@ class MomoTransaction extends Model
     protected $fillable = [
         'wallet_id',
         'member_id',
-        'transaction_type_id',
-        'transaction_name',
+        'transaction_type',
         'phone_number',
         'amount',
-        'transaction_fee',
+        'provider_fee',
         'service_fee',
+        'internal_status',
+        'internal_id',
+        'external_status',
+        'external_id',
+        'error_message',
     ];
 
     public function wallet()

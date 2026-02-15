@@ -11,19 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('wallet_transfer_transactions', function (Blueprint $table) {
+        Schema::create('wallet_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('source_wallet_id')->constrained('wallets')->cascadeOnDelete();
             $table->foreignId('destination_wallet_id')->constrained('wallets')->cascadeOnDelete();
             $table->foreignId('member_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('transaction_type_id')->constrained()->cascadeOnDelete();
-            $table->unsignedBigInteger('source_general_ledger_account_id');
-            $table->unsignedBigInteger('destination_general_ledger_account_id');
-            $table->foreign('source_general_ledger_account_id', 'wtt_source_gl_account_fk')->references('id')->on('general_ledger_accounts')->cascadeOnDelete();
-            $table->foreign('destination_general_ledger_account_id', 'wtt_dest_gl_account_fk')->references('id')->on('general_ledger_accounts')->cascadeOnDelete();
+            $table->string('transaction_type')->nullable();
             $table->decimal('amount', 19, 4);
-            $table->decimal('transaction_fee', 19, 4)->default(0);
             $table->decimal('service_fee', 19, 4)->default(0);
+            $table->string('status')->nullable(); 
+            $table->string('transaction_id')->nullable();// PENDING, SUCCESSFUL, FAILED
             $table->softDeletes();
             $table->timestamps();
         });
