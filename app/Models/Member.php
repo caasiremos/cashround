@@ -60,7 +60,7 @@ class Member extends Authenticatable
 
     public function groups()
     {
-        return $this->belongsToMany(Group::class);
+        return $this->belongsToMany(Group::class)->withPivot('rotation_position');
     }
 
     public function generalLedgerAccounts()

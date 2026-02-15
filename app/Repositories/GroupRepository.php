@@ -66,7 +66,7 @@ class GroupRepository
             ]);
             $this->createGroupWallet($group);
             $this->createGroupGeneralLedgerAccount($group);
-            $group->members()->attach($group->owner_id);
+            $group->members()->attach($group->owner_id, ['rotation_position' => 0]);
 
             return $group;
         });

@@ -17,6 +17,8 @@ class Group extends Model
         'balance',
         'status',
         'owner_id',
+        'current_recipient_member_id',
+        'completed_circles',
     ];
 
     protected $hidden = [
@@ -40,7 +42,23 @@ class Group extends Model
 
     public function members()
     {
-        return $this->belongsToMany(Member::class);
+        return $this->belongsToMany(Member::class)->withPivot('rotation_position');
+    }
+
+    /**
+     * Members ordered by rotation position (for rotation cycle).
+     */
+    public function membersInRotationOrder()
+    {
+        return $this->belongsToMany(Member::class)
+            ->withPivot('rotation_position')
+            ->orderBy('group_member.rotation_position')
+            ->orderBy('members.id');
+    }
+
+    public function currentRecipientMember()
+    {
+        return $this->belongsTo(Member::class, 'current_recipient_member_id');
     }
 
     public function wallet()

@@ -6,11 +6,16 @@ use App\Exceptions\ExpectedException;
 use App\Models\Group;
 use App\Models\GroupInvite;
 use App\Models\Member;
+use App\Services\GroupRotationService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class GroupInviteService
 {
+    public function __construct(
+        private GroupRotationService $groupRotationService,
+    ) {
+    }
     /**
      * Send an invite to join a group. Only the group owner can invite (mobile: owner sends from app).
      */
@@ -68,7 +73,8 @@ class GroupInviteService
         $this->assertInviteCanBeActedOn($invite, $member);
 
         return DB::transaction(function () use ($invite, $member) {
-            $invite->group->members()->syncWithoutDetaching([$member->id]);
+            $position = $this->groupRotationService->getNextRotationPosition($invite->group);
+            $invite->group->members()->syncWithoutDetaching([$member->id => ['rotation_position' => $position]]);
             $invite->update([
                 'status' => 'accepted',
                 'accepted_at' => now(),

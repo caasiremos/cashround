@@ -3,16 +3,22 @@
 namespace App\Repositories;
 
 use App\Enums\TransactionTypeEnum;
+use App\Models\Group;
 use App\Models\GroupRole;
 use App\Models\TransactionAuth;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
+use App\Repositories\GroupRotationRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class WalletTransactionRepository
 {
+    public function __construct(
+        private GroupRotationRepository $groupRotationRepository,
+    ) {
+    }
     /**
      * Create a new wallet transaction for a member to member transfer
      *
@@ -125,10 +131,38 @@ class WalletTransactionRepository
                 Wallet::whereId($wt->destination_wallet_id)->increment('balance', $amount);
                 $transactionAuth->update(['status' => 'successful']);
                 $wt->update(['status' => 'successful']);
+
+                $this->advanceRotationIfCurrentRecipient($wt);
             });
         }
 
         return $transactionAuth->fresh();
+    }
+
+    /**
+     * After a successful group-to-member transfer, advance rotation if the recipient was the current rotation recipient.
+     */
+    private function advanceRotationIfCurrentRecipient(WalletTransaction $wt): void
+    {
+        $sourceWallet = Wallet::find($wt->source_wallet_id);
+        if (! $sourceWallet?->group_id) {
+            return;
+        }
+
+        $group = Group::find($sourceWallet->group_id);
+        if (! $group) {
+            return;
+        }
+
+        $state = $this->groupRotationRepository->getRotationState($group);
+        $currentMember = $state['current_member'];
+        if (! $currentMember) {
+            return;
+        }
+
+        if ((int) $currentMember->id === (int) $wt->member_id) {
+            $this->groupRotationRepository->advanceRotation($group);
+        }
     }
 
     /**

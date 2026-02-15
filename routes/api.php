@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\GroupApiController;
 use App\Http\Controllers\GroupInviteApiController;
+use App\Http\Controllers\GroupRotationApiController;
 use App\Http\Controllers\MemberApiController;
 use App\Http\Controllers\MemberLoginApiController;
 use App\Http\Controllers\MomoTransactionApiController;
@@ -24,6 +25,7 @@ Route::prefix('groups')->middleware('auth:members')->group(function () {
     Route::get('/{group}', [GroupApiController::class, 'getGroupById']);
     Route::post('/{group}/role', [GroupApiController::class, 'setMemberRole']);
     Route::get('/{group}/members', [GroupApiController::class, 'getGroupMembers']);
+    Route::get('/{group}/rotation', [GroupRotationApiController::class, 'getRotation']);
     Route::post('/{group}/invites', [GroupInviteApiController::class, 'sendInvite']);
     Route::get('/{group}/wallet-balance', [GroupApiController::class, 'getGroupWalletBalance']);
 });
