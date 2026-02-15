@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Enums\TransactionTypeEnum;
 use App\Models\MomoTransaction;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Str;
 
 class MomoTransactionRepository
@@ -54,5 +55,15 @@ class MomoTransactionRepository
             'internal_id' => Str::uuid()->toString(),
             'error_message' => null,
         ]);
+    }
+
+    /**
+     * Get all momo transactions for a member
+     *
+     * @return Collection
+     */
+    public function getMemberMomoTransactions(): Collection
+    {
+        return MomoTransaction::where('member_id', auth('members')->user()->id)->get();
     }
 }

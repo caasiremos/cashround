@@ -8,11 +8,11 @@ class TransactionAuth extends Model
 {
     protected $fillable = [
         'group_id',
+        'wallet_transaction_id',
         'has_chairperson_approved',
         'has_treasurer_approved',
         'has_secretary_approved',
-        'has_admin_approved',
-        'amount',
+        'status',
     ];
 
     public function group()

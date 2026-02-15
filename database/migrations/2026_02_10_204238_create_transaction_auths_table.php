@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('transaction_auths', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('wallet_transaction_id')->constrained('wallet_transactions')->cascadeOnDelete();
             $table->foreignId('group_id')->constrained()->cascadeOnDelete();
             $table->boolean('has_chairperson_approved')->default(false);
             $table->boolean('has_treasurer_approved')->default(false);
             $table->boolean('has_secretary_approved')->default(false);
-            $table->boolean('has_admin_approved')->default(false);
-            $table->decimal('amount', 19, 4);
+            $table->string('status')->default('pending'); // pending, approved, rejected
             $table->timestamps();
         });
     }
