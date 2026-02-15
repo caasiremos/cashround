@@ -22,6 +22,7 @@ Route::prefix('groups')->middleware('auth:members')->group(function () {
     Route::get('/', [GroupApiController::class, 'getMemberGroups']);
     Route::post('/', [GroupApiController::class, 'createGroup']);
     Route::get('/{group}', [GroupApiController::class, 'getGroupById']);
+    Route::post('/{group}/role', [GroupApiController::class, 'setMemberRole']);
     Route::get('/{group}/members', [GroupApiController::class, 'getGroupMembers']);
     Route::post('/{group}/invites', [GroupInviteApiController::class, 'sendInvite']);
     Route::get('/{group}/wallet-balance', [GroupApiController::class, 'getGroupWalletBalance']);

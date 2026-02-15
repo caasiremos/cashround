@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\GeneralLedgerAccount;
 use App\Models\Group;
+use App\Models\GroupRole;
 use App\Models\Member;
 use App\Models\Wallet;
 use Illuminate\Database\Eloquent\Collection;
@@ -108,5 +109,20 @@ class GroupRepository
     public function getGroupById(int $id): Group
     {
         return Group::find($id);
+    }
+
+    /**
+     * Set the role of a member in a group
+     *
+     * @param array $data
+     * @return GroupRole
+     */
+    public function setMemberRole(array $data): Member
+    {
+        return GroupRole::create([
+            'group_id' => $data['group_id'],
+            'member_id' => $data['member_id'],
+            'role' => $data['role'],
+        ]);
     }
 }

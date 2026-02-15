@@ -73,4 +73,15 @@ class GroupService
     {
         return $this->groupRepository->getGroupMembers($group);
     }
+
+    /**
+     * Set the role of a member in a group
+     *
+     * @param array $data
+     * @return Member   
+     */
+    public function setMemberRole(array $data): Member
+    {
+        return $this->groupRepository->setMemberRole($data);
+    }
 }

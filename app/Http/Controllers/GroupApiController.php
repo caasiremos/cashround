@@ -77,4 +77,16 @@ class GroupApiController extends Controller
 
         return new ApiSuccessResponse($members, 'Group members fetched successfully');
     }
+
+    /**
+     * Set the role of a member in a group
+     *
+     * @param Request $request
+     * @return ApiSuccessResponse
+     */
+    public function setMemberRole(Request $request)
+    {
+        $member = $this->groupService->setMemberRole($request->all());
+        return new ApiSuccessResponse($member, 'Member role set successfully');
+    }
 }
