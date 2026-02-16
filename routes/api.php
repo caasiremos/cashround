@@ -24,6 +24,7 @@ Route::prefix('groups')->middleware('auth:members')->group(function () {
     Route::post('/', [GroupApiController::class, 'createGroup']);
     Route::get('/{group}', [GroupApiController::class, 'getGroupById']);
     Route::post('/{group}/role', [GroupApiController::class, 'setMemberRole']);
+    Route::delete('/{group}/role', [GroupApiController::class, 'removeMemberRole']);
     Route::get('/{group}/members', [GroupApiController::class, 'getGroupMembers']);
     Route::get('/{group}/rotation', [GroupRotationApiController::class, 'getRotation']);
     Route::post('/{group}/invites', [GroupInviteApiController::class, 'sendInvite']);
