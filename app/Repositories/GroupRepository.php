@@ -115,14 +115,16 @@ class GroupRepository
      * Set the role of a member in a group
      *
      * @param array $data
+     * @example ['group_id' => 1, 'member_id' => 1, 'role' => 'admin']
      * @return GroupRole
      */
-    public function setMemberRole(array $data): Member
+    public function setMemberRole(array $data): GroupRole
     {
-        return GroupRole::create([
+        $role = GroupRole::create([
             'group_id' => $data['group_id'],
             'member_id' => $data['member_id'],
             'role' => $data['role'],
         ]);
+        return $role->fresh();
     }
 }

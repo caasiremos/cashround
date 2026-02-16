@@ -27,19 +27,6 @@ class Wallet extends Model
         });
     }
 
-    /**
-     * Compute the balance of the wallet
-     *
-     * @return float
-     */
-    public function computeBalance(): float
-    {
-        if (empty($this->generalLedgerAccount)) {
-            return 0;
-        }
-        return $this->generalLedgerAccount->computeBalance();
-    }
-
     public function member()
     {
         return $this->belongsTo(Member::class);
@@ -48,10 +35,5 @@ class Wallet extends Model
     public function group()
     {
         return $this->belongsTo(Group::class);
-    }
-
-    public function generalLedgerAccounts()
-    {
-        return $this->hasMany(GeneralLedgerAccount::class);
     }
 }

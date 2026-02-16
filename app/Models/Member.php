@@ -55,17 +55,12 @@ class Member extends Authenticatable
 
     public function walletTransferTransactions()
     {
-        return $this->hasMany(WalletTransferTransaction::class);
+        return $this->hasMany(WalletTransaction::class);
     }
 
     public function groups()
     {
         return $this->belongsToMany(Group::class)->withPivot('rotation_position');
-    }
-
-    public function generalLedgerAccounts()
-    {
-        return $this->hasMany(GeneralLedgerAccount::class);
     }
 
     public function groupInvitesSent()
@@ -76,5 +71,12 @@ class Member extends Authenticatable
     public function groupInvitesReceived()
     {
         return $this->hasMany(GroupInvite::class, 'member_id');
+    }
+
+    public function groupRoles()
+    {
+        return $this->belongsToMany(Group::class, 'group_roles', 'member_id', 'group_id')
+            ->withPivot('role')
+            ->orderBy('group_roles.role');
     }
 }

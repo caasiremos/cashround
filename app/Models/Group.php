@@ -29,7 +29,7 @@ class Group extends Model
     protected $with = [
         'members',
         'wallet',
-        'generalLedgerAccounts',
+        'groupRoles'
     ];
 
     protected function casts(): array
@@ -66,11 +66,6 @@ class Group extends Model
         return $this->hasOne(Wallet::class);
     }
 
-    public function generalLedgerAccounts()
-    {
-        return $this->hasMany(GeneralLedgerAccount::class);
-    }
-
     public function invites()
     {
         return $this->hasMany(GroupInvite::class, 'group_id');
@@ -79,5 +74,16 @@ class Group extends Model
     public function owner()
     {
         return $this->belongsTo(Member::class, 'owner_id');
+    }
+    /**
+     * Group roles
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function groupRoles()
+    {
+        return $this->belongsToMany(Member::class, 'group_roles', 'group_id', 'member_id')
+            ->withPivot('role')
+            ->orderBy('group_roles.role');
     }
 }

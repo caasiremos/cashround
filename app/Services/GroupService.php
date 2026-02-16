@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Group;
+use App\Models\GroupRole;
 use App\Models\Member;
 use App\Repositories\GroupRepository;
 use Illuminate\Database\Eloquent\Collection;
@@ -78,9 +79,9 @@ class GroupService
      * Set the role of a member in a group
      *
      * @param array $data
-     * @return Member   
+     * @return GroupRole   
      */
-    public function setMemberRole(array $data): Member
+    public function setMemberRole(array $data): GroupRole
     {
         return $this->groupRepository->setMemberRole($data);
     }
