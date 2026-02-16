@@ -4,7 +4,9 @@ namespace App\Repositories;
 
 use App\Enums\TransactionTypeEnum;
 use App\Models\MomoTransaction;
+use App\Models\Wallet;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class MomoTransactionRepository
@@ -17,21 +19,29 @@ class MomoTransactionRepository
      */
     public function deposit(array $data)
     {
+        $member = auth('members')->user();
+        $wallet = $member->wallet;
+        $amount = (float) $data['amount'];
+        DB::transaction(function () use ($member, $wallet, $amount, $data) {
+            $transaction = MomoTransaction::create([
+                'member_id' => $member->id,
+                'amount' => $amount,
+                'phone_number' => $data['phone_number'],
+                'transaction_type' => TransactionTypeEnum::DEPOSIT->value,
+                'internal_status' => 'PENDING',
+                'external_status' => 'PENDING',
+                'external_id' => null,
+                'provider_fee' => 0,
+                'service_fee' => 0,
+                'wallet_id' => $wallet->id,
+                'internal_id' => Str::uuid()->toString(),
+                'error_message' => null,
+            ]);
 
-        return MomoTransaction::create([
-            'member_id' => auth('members')->user()->id,
-            'amount' => $data['amount'],
-            'phone_number' => $data['phone_number'],
-            'transaction_type' => TransactionTypeEnum::DEPOSIT->value,
-            'internal_status' => 'PENDING',
-            'external_status' => 'PENDING',
-            'external_id' => null,
-            'provider_fee' => 0,
-            'service_fee' => 0,
-            'wallet_id' => auth('members')->user()->wallet->id,
-            'internal_id' => Str::uuid()->toString(),
-            'error_message' => null,
-        ]);
+            Wallet::where('id', $wallet->id)->increment('balance', $amount);
+
+            return $transaction;
+        });
     }
     /**
      * Withdraw money from the wallet
@@ -41,20 +51,29 @@ class MomoTransactionRepository
      */
     public function withdrawal(array $data)
     {
-        return MomoTransaction::create([
-            'member_id' => auth('members')->user()->id,
-            'amount' => $data['amount'],
-            'phone_number' => $data['phone_number'],
-            'transaction_type' => TransactionTypeEnum::WITHDRAWAL->value,
-            'internal_status' => 'PENDING',
-            'external_status' => 'PENDING',
-            'external_id' => null,
-            'provider_fee' => 0,
-            'service_fee' => 0,
-            'wallet_id' => auth('members')->user()->wallet->id,
-            'internal_id' => Str::uuid()->toString(),
-            'error_message' => null,
-        ]);
+        $member = auth('members')->user();
+        $wallet = $member->wallet;
+        $amount = (float) $data['amount'];
+        DB::transaction(function () use ($member, $wallet, $amount, $data) {
+            $transaction = MomoTransaction::create([
+                'member_id' => $member->id,
+                'amount' => $amount,
+                'phone_number' => $data['phone_number'],
+                'transaction_type' => TransactionTypeEnum::WITHDRAWAL->value,
+                'internal_status' => 'PENDING',
+                'external_status' => 'PENDING',
+                'external_id' => null,
+                'provider_fee' => 0,
+                'service_fee' => 0,
+                'wallet_id' => $wallet->id,
+                'internal_id' => Str::uuid()->toString(),
+                'error_message' => null,
+            ]);
+
+            Wallet::where('id', $wallet->id)->decrement('balance', $amount);
+
+            return $transaction;
+        });
     }
 
     /**
