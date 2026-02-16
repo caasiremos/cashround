@@ -57,8 +57,6 @@ class MemberRepository
         return DB::transaction(function () use ($data) {
             $member = Member::create($data);
             $member->wallet()->create();
-            $this->createGeneralLedgerAccount($member);
-
             $verificationCode = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
             $member->update([
                 'verification_code' => $verificationCode,
@@ -89,29 +87,12 @@ class MemberRepository
 
         if ($member->verification_code_expires_at < now()) {
             throw new ExpectedException('Verification code expired');
-        }
+    }
 
         $member->update([
             'email_verified_at' => now(),
         ]);
 
         return $member;
-    }
-
-    /**
-     * Create a new general ledger account for a member
-     *
-     * @param Member $member
-     * @return GeneralLedgerAccount
-     */
-    public function createGeneralLedgerAccount(Member $member): GeneralLedgerAccount
-    {
-        return $member->generalLedgerAccounts()->create([
-            'name' => 'ACC - ' . $member->first_name . ' ' . $member->last_name,
-            'slug' => Str::slug('ACC - ' . $member->first_name . ' ' . $member->last_name) . '-' . $member->id,
-            'account_type' => 'liability',
-            'wallet_id' => $member->wallet->id,
-            'member_id' => $member->id
-        ]);
     }
 }

@@ -18,7 +18,7 @@ class MomoTransactionApiController extends Controller
      */
     public function deposit(MomoDepositRequest $request)
     {
-        $transaction = $this->momoTransactionService->deposit($request->user(), $validated['amount']);
+        $transaction = $this->momoTransactionService->deposit($request->all());
 
         return new ApiSuccessResponse($transaction, 'Deposit successful');
     }

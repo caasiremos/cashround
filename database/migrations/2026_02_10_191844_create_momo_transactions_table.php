@@ -20,10 +20,11 @@ return new class extends Migration
             $table->decimal('amount', 19, 4);
             $table->decimal('provider_fee', 19, 4)->default(0);
             $table->decimal('service_fee', 19, 4)->default(0);
-            $table->string('internal_status'); // PENDING, SUCCESSFUL, FAILED
+            $table->string('internal_status');
+            $table->string('telco_provider')->nullable();
             $table->string('internal_id')->nullable();
             $table->string('external_status')->nullable();
-            $table->string('external_id')->unique();
+            $table->string('external_id')->nullable();
             $table->text('error_message')->nullable();
             $table->timestamps();
             $table->softDeletes();
