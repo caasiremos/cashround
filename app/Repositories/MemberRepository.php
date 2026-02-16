@@ -22,7 +22,7 @@ class MemberRepository
      */
     public function getWalletBalance(Member $member): float
     {
-        return $member->wallet->computeBalance();
+        return $member->wallet->balance;
     }
     /**
      * Get all members of a group

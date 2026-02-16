@@ -21,7 +21,7 @@ class GroupRepository
      */
     public function getGroupWalletBalance(Group $group): float
     {
-        return $group->wallet->computeBalance();
+        return $group->wallet->balance;
     }
    
     /**
