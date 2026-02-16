@@ -46,6 +46,7 @@ Route::prefix('member')->middleware('auth:members')->group(function () {
     Route::get('/group/{group}', [MemberApiController::class, 'getGroupMembers']);
     Route::get('/{id}', [MemberApiController::class, 'getMemberById']);
     Route::post('/deposit', [MomoTransactionApiController::class, 'deposit']);
+    Route::post('/withdrawal', [MomoTransactionApiController::class, 'withdrawal']);
 });
 
 Route::prefix('wallet-transactions')->middleware('auth:members')->group(function () {
