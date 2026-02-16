@@ -18,13 +18,16 @@ class GroupRepository
      * Get the wallet balance of a group
      *
      * @param Group $group
-     * @return float
+     * @return array
      */
-    public function getGroupWalletBalance(Group $group): float
+    public function getGroupWalletBalance(Group $group): array
     {
-        return $group->wallet->balance;
+        return [
+            'balance' => $group->wallet->balance,
+            'account_number' => $group->wallet->account_number
+        ];
     }
-   
+
     /**
      * Get the groups of a member
      *

@@ -19,9 +19,9 @@ class MemberService
      * Get the wallet balance of the member
      *
      * @param Member $member
-     * @return float
+     * @return array
      */
-    public function getWalletBalance(Member $member): float
+    public function getWalletBalance(Member $member): array
     {
         return $this->memberRepository->getWalletBalance($member);
     }

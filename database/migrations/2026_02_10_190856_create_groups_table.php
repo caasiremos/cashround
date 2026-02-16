@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('owner_id')->constrained('members')->cascadeOnDelete();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->enum('frequency', ['daily', 'weekly', 'monthly', 'yearly'])->default('monthly');
+            $table->enum('frequency', ['Daily', 'Weekly', 'Monthly', 'Yearly'])->default('Monthly');
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->decimal('amount', 10, 2)->default(0);

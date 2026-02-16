@@ -18,11 +18,14 @@ class MemberRepository
      * Get the wallet balance of the member
      *
      * @param Member $member
-     * @return float
+     * @return array
      */
-    public function getWalletBalance(Member $member): float
+    public function getWalletBalance(Member $member): array
     {
-        return $member->wallet->balance;
+        return [
+            'balance' => $member->wallet->balance,
+            'account_number' => $member->wallet->account_number
+        ];
     }
     /**
      * Get all members of a group
@@ -87,7 +90,7 @@ class MemberRepository
 
         if ($member->verification_code_expires_at < now()) {
             throw new ExpectedException('Verification code expired');
-    }
+        }
 
         $member->update([
             'email_verified_at' => now(),

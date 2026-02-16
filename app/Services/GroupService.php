@@ -18,9 +18,9 @@ class GroupService
      * Get the wallet balance of a group
      *
      * @param Group $group
-     * @return float
+     * @return array
      */
-    public function getGroupWalletBalance(Group $group): float
+    public function getGroupWalletBalance(Group $group): array
     {
         return $this->groupRepository->getGroupWalletBalance($group);
     }
