@@ -133,9 +133,8 @@ class GroupRepository
      *
      * @param int $groupId
      * @param int $memberId
-     * @return GroupRole
      */
-    public function removeMemberRole(int $groupId, int $memberId): GroupRole
+    public function removeMemberRole(int $groupId, int $memberId)
     {
         return GroupRole::where('group_id', $groupId)->where('member_id', $memberId)->delete();
     }

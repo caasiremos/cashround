@@ -98,7 +98,7 @@ class GroupApiController extends Controller
      */
     public function removeMemberRole(Request $request)
     {
-        $member = $this->groupService->removeMemberRole($request->group, $request->member);
+        $member = $this->groupService->removeMemberRole($request->group_id, $request->member_id);
         return new ApiSuccessResponse($member, 'Member role removed successfully');
     }
 }
