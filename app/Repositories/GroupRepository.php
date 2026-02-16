@@ -110,22 +110,30 @@ class GroupRepository
         $groupId = (int) $data['group_id'];
         $memberId = (int) $data['member_id'];
 
-        $existing = GroupRole::where('group_id', $groupId)
+        $memberExistingRole = GroupRole::where('group_id', $groupId)
+            ->where('member_id', $memberId)
+            ->first();
+
+        if ($memberExistingRole) {
+            if ($memberExistingRole->role === $roleName) {
+                return $memberExistingRole->fresh();
+            }
+            throw new ExpectedException('Member cannot have two roles in the same group.');
+        }
+
+        $roleTakenByAnother = GroupRole::where('group_id', $groupId)
             ->where('role', $roleName)
-            ->where('member_id', '!=', $memberId)
             ->exists();
 
-        if ($existing) {
+        if ($roleTakenByAnother) {
             throw new ExpectedException('This role is already assigned to another member in the group.');
         }
 
-        return GroupRole::updateOrCreate(
-            [
-                'group_id' => $groupId,
-                'member_id' => $memberId,
-            ],
-            ['role' => $roleName]
-        )->fresh();
+        return GroupRole::create([
+            'group_id' => $groupId,
+            'member_id' => $memberId,
+            'role' => $roleName,
+        ])->fresh();
     }
 
     /**
