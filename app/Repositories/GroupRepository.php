@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Exceptions\ExpectedException;
 use App\Models\GeneralLedgerAccount;
 use App\Models\Group;
 use App\Models\GroupRole;
@@ -65,7 +66,6 @@ class GroupRepository
                 'slug' => Str::slug($data['name']) . '-' . Str::random(5),
             ]);
             $this->createGroupWallet($group);
-            $this->createGroupGeneralLedgerAccount($group);
             $group->members()->attach($group->owner_id, ['rotation_position' => 0]);
 
             return $group;
@@ -83,22 +83,6 @@ class GroupRepository
         return $group->wallet()->create();
     }
 
-    /**
-     * Create a new general ledger account for a group
-     *
-     * @param Group $group
-     * @return GeneralLedgerAccount
-     */
-    public function createGroupGeneralLedgerAccount(Group $group): GeneralLedgerAccount
-    {
-        return $group->generalLedgerAccounts()->create([
-            'name' => 'ACC - ' . $group->name,
-            'slug' => Str::slug('ACC - ' . $group->name) . '-' . $group->id,
-            'account_type' => 'liability',
-            'wallet_id' => $group->wallet->id,
-            'group_id' => $group->id
-        ]);
-    }
 
     /**
      * Get a group by id
@@ -112,19 +96,47 @@ class GroupRepository
     }
 
     /**
-     * Set the role of a member in a group
+     * Set the role of a member in a group.
+     * The same role cannot be held by another member in the same group.
      *
      * @param array $data
-     * @example ['group_id' => 1, 'member_id' => 1, 'role' => 'admin']
+     * @example ['group_id' => 1, 'member_id' => 1, 'role' => 'chairperson']
      * @return GroupRole
+     * @throws ExpectedException when the role is already assigned to another member in the group
      */
     public function setMemberRole(array $data): GroupRole
     {
-        $role = GroupRole::create([
-            'group_id' => $data['group_id'],
-            'member_id' => $data['member_id'],
-            'role' => $data['role'],
-        ]);
-        return $role->fresh();
+        $roleName = strtolower($data['role']);
+        $groupId = (int) $data['group_id'];
+        $memberId = (int) $data['member_id'];
+
+        $existing = GroupRole::where('group_id', $groupId)
+            ->where('role', $roleName)
+            ->where('member_id', '!=', $memberId)
+            ->exists();
+
+        if ($existing) {
+            throw new ExpectedException('This role is already assigned to another member in the group.');
+        }
+
+        return GroupRole::updateOrCreate(
+            [
+                'group_id' => $groupId,
+                'member_id' => $memberId,
+            ],
+            ['role' => $roleName]
+        )->fresh();
+    }
+
+    /**
+     * Remove the role of a member in a group
+     *
+     * @param int $groupId
+     * @param int $memberId
+     * @return GroupRole
+     */
+    public function removeMemberRole(int $groupId, int $memberId): GroupRole
+    {
+        return GroupRole::where('group_id', $groupId)->where('member_id', $memberId)->delete();
     }
 }

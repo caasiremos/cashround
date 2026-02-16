@@ -85,4 +85,16 @@ class GroupService
     {
         return $this->groupRepository->setMemberRole($data);
     }
+
+    /**
+     * Remove the role of a member in a group
+     *
+     * @param int $groupId
+     * @param int $memberId
+     * @return GroupRole
+     */
+    public function removeMemberRole(int $groupId, int $memberId): GroupRole
+    {
+        return $this->groupRepository->removeMemberRole($groupId, $memberId);
+    }
 }
