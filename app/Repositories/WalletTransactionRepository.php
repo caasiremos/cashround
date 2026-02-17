@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Enums\TransactionTypeEnum;
+use App\Exceptions\ExpectedException;
 use App\Models\Group;
 use App\Models\GroupRole;
 use App\Models\TransactionAuth;
@@ -17,8 +18,7 @@ class WalletTransactionRepository
 {
     public function __construct(
         private GroupRotationRepository $groupRotationRepository,
-    ) {
-    }
+    ) {}
     /**
      * Create a new wallet transaction for a member to member transfer
      *
@@ -27,16 +27,28 @@ class WalletTransactionRepository
      */
     public function memberToMember(array $data): WalletTransaction
     {
-        return WalletTransaction::create([
-            'source_wallet_id' => $data['source_wallet_id'],
-            'destination_wallet_id' => $data['destination_wallet_id'],
-            'member_id' => $data['member_id'],
-            'transaction_type' => TransactionTypeEnum::MEMBER_TO_MEMBER->value,
-            'amount' => $data['amount'],
-            'service_fee' => $data['service_fee'],
-            'status' => 'PENDING',
-            'transaction_id' => Str::uuid()->toString(),
-        ]);
+        $sourceWallet = auth('members')->user()->wallet;
+        $destinationWallet = Wallet::find($data['account_number'])->first();
+        if (! $destinationWallet) {
+            throw new ExpectedException('Account number not found');
+        }
+        return DB::transaction(function () use ($sourceWallet, $destinationWallet, $data) {
+            $transaction = WalletTransaction::create([
+                'source_wallet_id' => $sourceWallet->id,
+                'destination_wallet_id' => $destinationWallet->id,
+                'member_id' => auth('members')->user()->id,
+                'transaction_type' => TransactionTypeEnum::MEMBER_TO_MEMBER->value,
+                'amount' => $data['amount'],
+                'service_fee' => WalletTransaction::FEE_AMOUNT,
+                'status' => WalletTransaction::STATUS_PENDING,
+                'transaction_id' => Str::uuid()->toString(),
+            ]);
+
+            Wallet::where('id', $sourceWallet->id)->decrement('balance', $data['amount'] + WalletTransaction::FEE_AMOUNT);
+            Wallet::where('id', $destinationWallet->id)->increment('balance', $data['amount']);
+
+            return $transaction;
+        });
     }
 
     /**

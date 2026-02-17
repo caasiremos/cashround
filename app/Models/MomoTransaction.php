@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class MomoTransaction extends Model
 {
+    public CONST STATUS_PENDING = 'pending';
+    public CONST STATUS_SUCCESSFUL = 'successful';
+    public CONST STATUS_FAILED = 'failed';
+    public CONST STATUS_CANCELLED = 'cancelled';
+
     protected $fillable = [
         'wallet_id',
         'member_id',

@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class WalletTransaction extends Model
 {
+    public CONST FEE_AMOUNT = 1000;
+    public CONST STATUS_PENDING = 'pending';
+    public CONST STATUS_SUCCESSFUL = 'successful';
+    public CONST STATUS_FAILED = 'failed';
+    public CONST STATUS_CANCELLED = 'cancelled';
+
+    
     protected $fillable = [
         'source_wallet_id',
         'destination_wallet_id',
