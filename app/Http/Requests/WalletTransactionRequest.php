@@ -23,9 +23,7 @@ class WalletTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'source_wallet_id' => 'required|exists:wallets,id',
-            'destination_wallet_id' => 'required|exists:wallets,id',
-            'member_id' => 'required|exists:members,id',
+            'account_number' => 'required|exists:wallets,id',
             'amount' => 'required|numeric|min:0',
         ];
     }
