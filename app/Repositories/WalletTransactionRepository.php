@@ -9,7 +9,6 @@ use App\Models\GroupRole;
 use App\Models\TransactionAuth;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
-use App\Repositories\GroupRotationRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -19,19 +18,18 @@ class WalletTransactionRepository
     public function __construct(
         private GroupRotationRepository $groupRotationRepository,
     ) {}
+
     /**
      * Create a new wallet transaction for a member to member transfer
-     *
-     * @param array $data
-     * @return WalletTransaction
      */
     public function memberToMember(array $data): WalletTransaction
     {
         $sourceWallet = auth('members')->user()->wallet;
-        $destinationWallet = Wallet::find($data['account_number'])->first();
+        $destinationWallet = Wallet::query()->where('account_number', $data['account_number'])->first();
         if (! $destinationWallet) {
             throw new ExpectedException('Account number not found');
         }
+
         return DB::transaction(function () use ($sourceWallet, $destinationWallet, $data) {
             $transaction = WalletTransaction::create([
                 'source_wallet_id' => $sourceWallet->id,
@@ -53,9 +51,6 @@ class WalletTransactionRepository
 
     /**
      * Create a new wallet transaction for a group to member transfer
-     *
-     * @param array $data
-     * @return WalletTransaction
      */
     public function groupToMember(array $data): WalletTransaction
     {
@@ -89,9 +84,6 @@ class WalletTransactionRepository
      * Confirm a group-to-member transaction. Payload: member_id, role, group_id, wallet_transaction_id.
      * When all approval roles (chairperson, treasurer, secretary) in the group have confirmed,
      * the wallet transaction and transaction auth are marked as successful.
-     *
-     * @param array $data
-     * @return TransactionAuth
      */
     public function confirmGroupToWalletTransfer(array $data): TransactionAuth
     {
@@ -179,9 +171,6 @@ class WalletTransactionRepository
 
     /**
      * Create a new wallet transaction for a member to group transfer
-     *
-     * @param array $data
-     * @return WalletTransaction
      */
     public function memberToGroup(array $data): WalletTransaction
     {
@@ -199,9 +188,6 @@ class WalletTransactionRepository
 
     /**
      * Get all transaction auths for a group
-     *
-     * @param array $data
-     * @return Collection
      */
     public function getGroupTransactionAuths(array $data): Collection
     {
@@ -210,9 +196,6 @@ class WalletTransactionRepository
 
     /**
      * Get all transaction auths for a member
-     *
-     * @param array $data
-     * @return Collection
      */
     public function getMemberTransactionAuths(array $data): Collection
     {
@@ -221,9 +204,6 @@ class WalletTransactionRepository
 
     /**
      * Get all wallet transactions for a group
-     *
-     * @param array $data
-     * @return Collection
      */
     public function getGroupWalletTransactions(array $data): Collection
     {
@@ -232,9 +212,6 @@ class WalletTransactionRepository
 
     /**
      * Get all wallet transactions for a member
-     *
-     * @param array $data
-     * @return Collection
      */
     public function getMemberWalletTransactions(array $data): Collection
     {
