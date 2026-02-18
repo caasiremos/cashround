@@ -34,7 +34,7 @@ class OtpService
     public function verifyOtp(Request $request): bool
     {
         $otp = Otp::query()
-            ->where('telephone_number', $request->phone_number)
+            ->where('phone_number', $request->phone_number)
             ->where('code', $request->code)
             ->where('matched', false)
             ->where('expires_at', '>', now())
