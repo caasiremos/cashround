@@ -30,6 +30,14 @@ class WalletTransactionRepository
             throw new ExpectedException('Account number not found');
         }
 
+        if ($sourceWallet->id === $destinationWallet->id) {
+            throw new ExpectedException('You cannot transfer money to yourself');
+        }
+
+        if ($sourceWallet->balance < $data['amount'] + WalletTransaction::FEE_AMOUNT) {
+            throw new ExpectedException('Insufficient balance');
+        }
+
         return DB::transaction(function () use ($sourceWallet, $destinationWallet, $data) {
             $transaction = WalletTransaction::create([
                 'source_wallet_id' => $sourceWallet->id,
