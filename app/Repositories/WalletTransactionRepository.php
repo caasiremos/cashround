@@ -6,6 +6,7 @@ use App\Enums\TransactionTypeEnum;
 use App\Exceptions\ExpectedException;
 use App\Models\Group;
 use App\Models\GroupRole;
+use App\Models\Member;
 use App\Models\TransactionAuth;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
@@ -62,18 +63,19 @@ class WalletTransactionRepository
      */
     public function groupToMember(array $data): WalletTransaction
     {
-        $sourceWallet = Wallet::find($data['source_wallet_id']);
+        $member = Member::query()->where('id', $data['member_id'])->first();
+        $destinationWallet = Wallet::query()->where('id', $member->wallet->id)->first();
+        if (! $destinationWallet) {
+            throw new ExpectedException('Destination wallet not found');
+        }
+
+        $sourceWallet = Wallet::query()->where('account_number', $data['account_number'])->first();
         if (! $sourceWallet) {
             throw new ExpectedException('Source wallet not found');
         }
 
-        if ($sourceWallet->balance < $data['amount'] + WalletTransaction::FEE_AMOUNT) {
+        if ($sourceWallet->balance < $data['amount']) {
             throw new ExpectedException('Insufficient balance');
-        }
-
-        $destinationWallet = Wallet::find($data['destination_wallet_id']);
-        if (! $destinationWallet) {
-            throw new ExpectedException('Destination wallet not found');
         }
 
         if ($destinationWallet->id === $sourceWallet->id) {
@@ -81,17 +83,16 @@ class WalletTransactionRepository
         }
 
         $transaction = WalletTransaction::create([
-            'source_wallet_id' => $data['source_wallet_id'],
-            'destination_wallet_id' => $data['destination_wallet_id'],
+            'source_wallet_id' => $sourceWallet->id,
+            'destination_wallet_id' => $destinationWallet->id,
             'member_id' => $data['member_id'],
             'transaction_type' => TransactionTypeEnum::GROUP_TO_MEMBER->value,
             'amount' => $data['amount'],
-            'service_fee' => $data['service_fee'],
+            'service_fee' => 0,
             'status' => 'pending',
             'transaction_id' => Str::uuid()->toString(),
         ]);
 
-        $sourceWallet = Wallet::find($data['source_wallet_id']);
         if ($sourceWallet?->group_id) {
             TransactionAuth::create([
                 'wallet_transaction_id' => $transaction->id,
