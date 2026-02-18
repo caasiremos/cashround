@@ -17,8 +17,16 @@ class GroupInviteRepository
      */
     public function createGroupInvite(array $data): GroupInvite
     {
-        return GroupInvite::create($data);
+        $groupInvite = GroupInvite::updateOrCreate(
+            [
+                'group_id' => $data['group_id'],
+                'member_id' => auth()->user()->id
+            ],
+            ['invite_code' => $data['invite_code'], 'expires_at' => now()->addMinutes(5)]
+        );
+        return $groupInvite;
     }
+
     /**
      * Get a group invite by invite code
      *
@@ -27,7 +35,7 @@ class GroupInviteRepository
      */
     public function confirmInvite(string $inviteCode): Group
     {
-         return DB::transaction(function () use ($inviteCode) {
+        return DB::transaction(function () use ($inviteCode) {
             $groupRotationRepository = new GroupRotationRepository();
             $groupInvite = GroupInvite::where('invite_code', $inviteCode)->first();
             $position = $groupRotationRepository->getNextRotationPosition($groupInvite->group);

@@ -31,14 +31,9 @@ Route::prefix('groups')->middleware('auth:members')->group(function () {
     Route::get('/{group}/wallet-balance', [GroupApiController::class, 'getGroupWalletBalance']);
 });
 
-// Invite by token (no auth) — for mobile deep link preview
-Route::get('/invites/by-token/{token}', [GroupInviteApiController::class, 'getByToken']);
-
 Route::prefix('invites')->middleware('auth:members')->group(function () {
-    Route::get('/', [GroupInviteApiController::class, 'myPendingInvites']);
-    Route::post('/accept-by-token', [GroupInviteApiController::class, 'acceptByToken']);
-    Route::post('/{invite}/accept', [GroupInviteApiController::class, 'accept']);
-    Route::post('/{invite}/decline', [GroupInviteApiController::class, 'decline']);
+    Route::post('/send-invite', [GroupInviteApiController::class, 'sendInvite']);
+    Route::post('/confirm-invite', [GroupInviteApiController::class, 'confirmInviteCode']);
 });
 
 Route::prefix('member')->middleware('auth:members')->group(function () {

@@ -16,15 +16,11 @@ class GroupInvite extends Model
     protected $casts = [
         'expires_at' => 'datetime',
     ];
-
-    protected static function booted(): void
-    {
-        static::creating(function (GroupInvite $invite) {
-            $verificationCode = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-            $invite->invite_code = $verificationCode;
-            $invite->expires_at = now()->addMinutes(5);
-        });
-    }
+    
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
 
     public function group()
     {

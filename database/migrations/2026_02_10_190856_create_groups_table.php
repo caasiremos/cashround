@@ -20,7 +20,6 @@ return new class extends Migration
             $table->date('start_date');
             $table->date('end_date')->nullable();
             $table->decimal('amount', 10, 2)->default(0);
-            $table->decimal('balance', 10, 2)->default(0);
             $table->text('description')->nullable();
             $table->string('status')->default('active');
             $table->timestamps();
