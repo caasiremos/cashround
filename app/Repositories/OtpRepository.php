@@ -28,9 +28,7 @@ class OtpRepository
     /**
      * Verify that the OTP is valid
      *
-     * @param  string  $telephoneNumber
-     * @param  string  $code
-     * @return bool
+     * @return TransactionAuth
      */
     public function verifyOtp(Request $request): TransactionAuth
     {

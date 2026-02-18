@@ -34,17 +34,23 @@ class OtpService
     /**
      * @throws ExpectedException
      */
-    public function verifyOtp(Request $request): TransactionAuth
+    public function verifyOtp(Request $request)
     {
         $otp = Otp::query()
             ->where('phone_number', $request->phone_number)
             ->where('code', $request->code)
-            ->where('matched', false)
-            ->where('expires_at', '>', now())
             ->first();
 
         if (! $otp) {
             throw new ExpectedException('Invalid OTP');
+        }
+
+        if ($otp->matched) {
+            throw new ExpectedException('OTP already used');
+        }
+
+        if ($otp->expires_at->isPast()) {
+            throw new ExpectedException('OTP has expired');
         }
 
         return $this->otpRepository->verifyOtp($request);
