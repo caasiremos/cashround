@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\ExpectedException;
 use App\Http\Responses\ApiSuccessResponse;
-use App\Http\Services\OtpService;
+use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Throwable;
 
