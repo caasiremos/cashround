@@ -36,7 +36,7 @@ class OtpController extends Controller
     public function verifyOtp(Request $request)
     {
         $request->validate([
-            'telephone_number' => 'required|string|max:255|exists:otps,telephone_number',
+            'phone_number' => 'required|string|max:255|exists:otps,telephone_number',
             'code' => 'required|string|max:255|exists:otps,code',
         ]);
         $verified = $this->otpService->verifyOtp($request);
