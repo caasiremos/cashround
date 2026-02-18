@@ -15,39 +15,74 @@ class GroupRotationApiController extends Controller
     }
 
     /**
-     * Get rotation state for a group: current recipient, next recipient, completed circles.
+     * Get rotation state for a group: current recipient, next recipient, completed circles, and scheduled cashround dates.
      */
     public function getRotation(Group $group): ApiSuccessResponse
     {
-        $state = $this->groupRotationService->getRotationState($group);
+        $data = $this->buildRotationData($group);
 
+        return new ApiSuccessResponse($data, 'Rotation state fetched successfully');
+    }
+
+    /**
+     * Reschedule the current recipient to the end of the round (use when their cashround date has passed without payment).
+     */
+    public function rescheduleCurrentRecipient(Group $group): ApiSuccessResponse
+    {
+        if (! $this->groupRotationService->hasCurrentRecipientDatePassed($group)) {
+            return new ApiSuccessResponse(
+                $this->buildRotationData($group),
+                'Current recipient date has not passed; no reschedule performed'
+            );
+        }
+
+        $this->groupRotationService->rescheduleCurrentRecipientToEndOfRound($group);
+        $group->refresh();
+
+        return new ApiSuccessResponse(
+            $this->buildRotationData($group),
+            'Current recipient rescheduled to end of round; rotation advanced'
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function buildRotationData(Group $group): array
+    {
+        $state = $this->groupRotationService->getRotationStateWithDates($group);
         $current = $state['current_member'];
         $next = $state['next_member'];
 
-        $data = [
+        return [
             'current_member' => $current ? [
                 'id' => $current->id,
                 'first_name' => $current->first_name,
                 'last_name' => $current->last_name,
                 'email' => $current->email,
+                'scheduled_cashround_date' => $state['current_scheduled_date'] ?? null,
             ] : null,
             'next_member' => $next ? [
                 'id' => $next->id,
                 'first_name' => $next->first_name,
                 'last_name' => $next->last_name,
                 'email' => $next->email,
+                'scheduled_cashround_date' => $state['next_scheduled_date'] ?? null,
             ] : null,
             'completed_circles' => $state['completed_circles'],
             'circle_complete' => $state['completed_circles'] > 0,
-            'members_in_order' => $state['members_in_order']->map(fn ($m) => [
-                'id' => $m->id,
-                'first_name' => $m->first_name,
-                'last_name' => $m->last_name,
-                'email' => $m->email,
-                'rotation_position' => (int) $m->pivot->rotation_position,
-            ])->values()->all(),
+            'current_recipient_date_passed' => $this->groupRotationService->hasCurrentRecipientDatePassed($group),
+            'members_in_order' => array_map(function ($entry) {
+                $m = $entry['member'];
+                return [
+                    'id' => $m->id,
+                    'first_name' => $m->first_name,
+                    'last_name' => $m->last_name,
+                    'email' => $m->email,
+                    'rotation_position' => (int) $m->pivot->rotation_position,
+                    'scheduled_cashround_date' => $entry['scheduled_cashround_date'],
+                ];
+            }, $state['members_with_dates']),
         ];
-
-        return new ApiSuccessResponse($data, 'Rotation state fetched successfully');
     }
 }

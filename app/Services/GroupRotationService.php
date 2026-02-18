@@ -45,4 +45,28 @@ class GroupRotationService
     {
         return $this->groupRotationRepository->setCurrentRecipient($group, $memberId);
     }
+
+    /**
+     * Get rotation state including scheduled cashround dates for each member (from start_date + frequency).
+     */
+    public function getRotationStateWithDates(Group $group): array
+    {
+        return $this->groupRotationRepository->getRotationStateWithDates($group);
+    }
+
+    /**
+     * Whether the current recipient's scheduled cashround date has passed.
+     */
+    public function hasCurrentRecipientDatePassed(Group $group): bool
+    {
+        return $this->groupRotationRepository->hasCurrentRecipientDatePassed($group);
+    }
+
+    /**
+     * Reschedule the current recipient to the end of the round (after all others who have not yet received), then advance to next member.
+     */
+    public function rescheduleCurrentRecipientToEndOfRound(Group $group): Group
+    {
+        return $this->groupRotationRepository->rescheduleCurrentRecipientToEndOfRound($group);
+    }
 }

@@ -42,7 +42,7 @@ class Group extends Model
 
     public function members()
     {
-        return $this->belongsToMany(Member::class)->withPivot('rotation_position');
+        return $this->belongsToMany(Member::class)->withPivot('rotation_position', 'scheduled_cashround_date');
     }
 
     /**
@@ -51,7 +51,7 @@ class Group extends Model
     public function membersInRotationOrder()
     {
         return $this->belongsToMany(Member::class)
-            ->withPivot('rotation_position')
+            ->withPivot('rotation_position', 'scheduled_cashround_date')
             ->orderBy('group_member.rotation_position')
             ->orderBy('members.id');
     }

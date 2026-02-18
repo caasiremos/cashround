@@ -60,7 +60,7 @@ class Member extends Authenticatable
 
     public function groups()
     {
-        return $this->belongsToMany(Group::class)->withPivot('rotation_position');
+        return $this->belongsToMany(Group::class)->withPivot('rotation_position', 'scheduled_cashround_date');
     }
 
     public function groupInvitesSent()

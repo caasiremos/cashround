@@ -27,6 +27,7 @@ Route::prefix('groups')->middleware('auth:members')->group(function () {
     Route::delete('/{group}/role', [GroupApiController::class, 'removeMemberRole']);
     Route::get('/{group}/members', [GroupApiController::class, 'getGroupMembers']);
     Route::get('/{group}/rotation', [GroupRotationApiController::class, 'getRotation']);
+    Route::post('/{group}/rotation/reschedule', [GroupRotationApiController::class, 'rescheduleCurrentRecipient']);
     Route::post('/{group}/invites', [GroupInviteApiController::class, 'sendInvite']);
     Route::get('/{group}/wallet-balance', [GroupApiController::class, 'getGroupWalletBalance']);
 });

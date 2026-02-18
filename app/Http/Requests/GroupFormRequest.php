@@ -26,6 +26,7 @@ class GroupFormRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'start_date' => 'required|date',
             'description' => 'nullable|string|max:255',
             'frequency' => 'required|string|in:daily,weekly,monthly,yearly',
             'amount' => 'required|numeric|min:0',

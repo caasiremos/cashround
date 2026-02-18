@@ -63,7 +63,7 @@ class GroupRepository
                 'owner_id' => auth()->user()->id,
                 'name' => $data['name'],
                 'frequency' => $data['frequency'],
-                'start_date' => now(),
+                'start_date' => $data['start_date'],
                 'amount' => $data['amount'],
                 'description' => $data['description'] ?? null,
                 'slug' => Str::slug($data['name']) . '-' . Str::random(5),
