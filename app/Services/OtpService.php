@@ -39,6 +39,7 @@ class OtpService
         $otp = Otp::query()
             ->where('phone_number', $request->phone_number)
             ->where('code', $request->code)
+            ->latest()
             ->first();
 
         if (! $otp) {
