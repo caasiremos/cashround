@@ -16,12 +16,10 @@ use Illuminate\Support\Str;
 
 class WalletTransactionRepository
 {
-    public function __construct(
-        private GroupRotationRepository $groupRotationRepository,
-    ) {}
+    public function __construct() {}
 
     /**
-     * Create a new wallet transaction for a member to member transfer
+     * Create a new wallet transaction for a member-to-member transfer
      */
     public function memberToMember(array $data): WalletTransaction
     {
@@ -114,12 +112,12 @@ class WalletTransactionRepository
      */
     public function confirmGroupToWalletTransfer(array $data): TransactionAuth
     {
-        $transactionAuth = TransactionAuth::where('wallet_transaction_id', $data['wallet_transaction_id'])
-            ->where('group_id', $data['group_id'])
+        $transactionAuth = TransactionAuth::where('group_id', $data['group_id'])
             ->where('status', 'pending')
-            ->firstOrFail();
+            ->latest()
+            ->first();
 
-        $memberId = $data['member_id'];
+        $memberId = auth()->user()->id;
         $role = strtolower($data['role']);
 
         $groupRole = GroupRole::where('group_id', $data['group_id'])
