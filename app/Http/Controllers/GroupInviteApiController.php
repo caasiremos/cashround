@@ -17,30 +17,25 @@ class GroupInviteApiController extends Controller
 
     /**
      * POST /invites/send-invite — Owner sends an invite (body: email, optional member_id).
+     *
+     * @param GroupInviteRequest $request
+     * @return ApiSuccessResponse
      */
-    public function sendInvite(GroupInviteRequest $request)
+    public function sendInvite(GroupInviteRequest $request): ApiSuccessResponse
     {
-        try {
-            $invite = $this->groupInviteService->sendInvite($request->all());
-            return new ApiSuccessResponse($invite, 'Invite code generated successfully');
-        } catch (\Exception $e) {
-            return new ApiErrorResponse($e->getMessage(), $e, code: 400);
-        }
-
-        return new ApiSuccessResponse($invite->load(['group', 'inviter']), 'Invite sent successfully');
+        $invite = $this->groupInviteService->sendInvite($request->all());
+        return new ApiSuccessResponse($invite, 'Invite code generated successfully');
     }
 
     /**
-     * POST /invites/confirm-invite — Accept by invite id (user tapped Accept in app).
+     * Accept an invite by invite code
+     *
+     * @param Request $request
+     * @return ApiSuccessResponse
      */
-    public function confirmInvite(Request $request)
+    public function acceptInvite(Request $request): ApiSuccessResponse
     {
-        try {
-            $invite = $this->groupInviteService->confirmInvite($request->all());
-        } catch (\Exception $e) {
-            return new ApiErrorResponse($e->getMessage(), $e, code: 400);
-        }
-
-        return new ApiSuccessResponse($invite, 'Invite accepted successfully');
+        $group = $this->groupInviteService->acceptInvite($request->invite_code);
+        return new ApiSuccessResponse($group, 'Invite accepted successfully');
     }
 }

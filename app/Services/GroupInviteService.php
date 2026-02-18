@@ -5,9 +5,7 @@ namespace App\Services;
 use App\Exceptions\ExpectedException;
 use App\Models\Group;
 use App\Models\GroupInvite;
-use App\Models\Member;
 use App\Repositories\GroupInviteRepository;
-use Illuminate\Support\Facades\DB;
 
 class GroupInviteService
 {
@@ -36,33 +34,17 @@ class GroupInviteService
      * Accept an invite by invite code
      *
      * @param string $inviteCode
-     * @return GroupInvite
+     * @return Group
      */
-    public function acceptInvite(string $inviteCode): GroupInvite
+    public function acceptInvite(string $inviteCode): Group
     {
-        $invite = GroupInvite::where('invite_code', $inviteCode)->first();
+        $invite = GroupInvite::query()->where('invite_code', $inviteCode)->first();
         if (!$invite) {
             throw new ExpectedException('Invite not found.');
         }
         if($invite->expires_at < now()) {
             throw new ExpectedException('Invite has expired.');
         }
-        return $invite;
-    }
-
-    /**
-     * Get invite by token (e.g. from deep link cashround://invite/{token}). Mobile can show preview then call acceptByToken when user confirms.
-     */
-    public function getInviteByToken(string $token): ?GroupInvite
-    {
-        $invite = GroupInvite::where('token', $token)
-            ->with(['group', 'inviter'])
-            ->first();
-
-        if (!$invite || !$invite->isPending()) {
-            return null;
-        }
-
-        return $invite;
+        return $this->groupInviteRepository->acceptInvite($invite);
     }
 }

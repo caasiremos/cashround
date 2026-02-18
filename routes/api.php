@@ -33,7 +33,7 @@ Route::prefix('groups')->middleware('auth:members')->group(function () {
 
 Route::prefix('invites')->middleware('auth:members')->group(function () {
     Route::post('/send-invite', [GroupInviteApiController::class, 'sendInvite']);
-    Route::post('/accept-invite', [GroupInviteApiController::class, 'confirmInviteCode']);
+    Route::post('/accept-invite', [GroupInviteApiController::class, 'acceptInvite']);
 });
 
 Route::prefix('member')->middleware('auth:members')->group(function () {

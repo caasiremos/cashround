@@ -30,16 +30,22 @@ class GroupInviteRepository
     /**
      * Get a group invite by invite code
      *
-     * @param string $inviteCode
+     * @param GroupInvite $groupInvite
      * @return Group
      */
-    public function confirmInvite(string $inviteCode): Group
+    public function acceptInvite(GroupInvite $groupInvite): Group
     {
-        return DB::transaction(function () use ($inviteCode) {
+        return DB::transaction(function () use ($groupInvite) {
+            $memberId = auth()->user()->id;
+
+            if ($groupInvite->group->members()->where('members.id', $memberId)->exists()) {
+                return $groupInvite->group->fresh();
+            }
+
             $groupRotationRepository = new GroupRotationRepository();
-            $groupInvite = GroupInvite::where('invite_code', $inviteCode)->first();
             $position = $groupRotationRepository->getNextRotationPosition($groupInvite->group);
-            $groupInvite->group->members()->syncWithoutDetaching([auth()->user()->id => ['rotation_position' => $position]]);
+            $groupInvite->group->members()->syncWithoutDetaching([$memberId => ['rotation_position' => $position]]);
+
             return $groupInvite->group->fresh();
         });
     }
