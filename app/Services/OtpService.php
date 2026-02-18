@@ -3,20 +3,20 @@
 namespace App\Services;
 
 use App\Exceptions\ExpectedException;
-use App\Repositories\OtpRepository;
 use App\Models\Member;
 use App\Models\Otp;
+use App\Models\TransactionAuth;
+use App\Repositories\OtpRepository;
 use Illuminate\Http\Request;
+
 class OtpService
 {
-    public function __construct(private OtpRepository $otpRepository)
-    {
-    }
+    public function __construct(private OtpRepository $otpRepository) {}
 
     /**
      * Generate a new OTP
-     * @param string $telephoneNumber
-     * @return Otp
+     *
+     * @param  string  $telephoneNumber
      */
     public function generateOtp(Request $request): Otp
     {
@@ -24,14 +24,17 @@ class OtpService
             throw new ExpectedException('Phone number is required');
         }
         $member = Member::where('phone_number', $request->phone_number)->first();
-        if (!$member) {
+        if (! $member) {
             throw new ExpectedException('Phone number not found');
         }
 
         return $this->otpRepository->generateOtp($request->phone_number);
     }
 
-    public function verifyOtp(Request $request): bool
+    /**
+     * @throws ExpectedException
+     */
+    public function verifyOtp(Request $request): TransactionAuth
     {
         $otp = Otp::query()
             ->where('phone_number', $request->phone_number)
@@ -40,7 +43,7 @@ class OtpService
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$otp) {
+        if (! $otp) {
             throw new ExpectedException('Invalid OTP');
         }
 

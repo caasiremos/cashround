@@ -272,7 +272,7 @@ class GroupRotationRepository
     }
 
     /**
-     * Set current recipient (e.g. to start or reset rotation). Used when no payment has been made yet.
+     * Set the current recipient (e.g., to start or reset rotation). Used when no payment has been made yet.
      */
     public function setCurrentRecipient(Group $group, ?int $memberId): Group
     {

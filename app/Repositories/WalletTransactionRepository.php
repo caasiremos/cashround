@@ -16,7 +16,12 @@ use Illuminate\Support\Str;
 
 class WalletTransactionRepository
 {
-    public function __construct() {}
+    private GroupRotationRepository $groupRotationRepository;
+
+    public function __construct()
+    {
+        $this->groupRotationRepository = new GroupRotationRepository;
+    }
 
     /**
      * Create a new wallet transaction for a member-to-member transfer
@@ -57,7 +62,7 @@ class WalletTransactionRepository
     }
 
     /**
-     * Create a new wallet transaction for a group to member transfer
+     * Create a new wallet transaction for a group-to-member transfer
      */
     public function groupToMember(array $data): WalletTransaction
     {
@@ -195,7 +200,7 @@ class WalletTransactionRepository
     }
 
     /**
-     * Create a new wallet transaction for a member to group transfer
+     * Create a new wallet transaction for a member-to-group transfer
      */
     public function memberToGroup(array $data): WalletTransaction
     {
