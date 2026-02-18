@@ -6,6 +6,7 @@ use App\Http\Controllers\GroupRotationApiController;
 use App\Http\Controllers\MemberApiController;
 use App\Http\Controllers\MemberLoginApiController;
 use App\Http\Controllers\MomoTransactionApiController;
+use App\Http\Controllers\OtpController;
 use App\Http\Controllers\WalletTransactionApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -50,4 +51,9 @@ Route::prefix('wallet-transactions')->middleware('auth:members')->group(function
     Route::post('/group-to-member', [WalletTransactionApiController::class, 'groupToMember']);
     Route::post('/confirm-group-to-member', [WalletTransactionApiController::class, 'confirmGroupToMember']);
     Route::post('/member-to-group', [WalletTransactionApiController::class, 'memberToGroup']);
+});
+
+Route::controller(OtpController::class)->middleware('auth:members')->group(function () {
+    Route::post('otp/generate', 'generateOtp');
+    Route::post('otp/verify', 'verifyOtp');
 });
