@@ -21,7 +21,7 @@ class OtpController extends Controller
     public function generateOtp(Request $request)
     {
         $request->validate([
-            'telephone_number' => 'required|string|max:255',
+            'phone_number' => 'required|string|max:255',
         ]);
         $otp = $this->otpService->generateOtp($request);
         return new ApiSuccessResponse($otp);

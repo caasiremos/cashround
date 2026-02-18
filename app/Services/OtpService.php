@@ -21,21 +21,21 @@ class OtpService
      */
     public function generateOtp(Request $request): Otp
     {
-        if (blank($request->telephone_number)) {
+        if (blank($request->phone_number)) {
             throw new ExpectedException('Phone number is required');
         }
-        $member = Member::where('telephone_number', $request->telephone_number)->first();
+        $member = Member::where('telephone_number', $request->phone_number)->first();
         if (!$member) {
             throw new ExpectedException('Phone number not found');
         }
 
-        return $this->otpRepository->generateOtp($request->telephone_number);
+        return $this->otpRepository->generateOtp($request->phone_number);
     }
 
     public function verifyOtp(Request $request): bool
     {
         $otp = Otp::query()
-            ->where('telephone_number', $request->telephone_number)
+            ->where('telephone_number', $request->phone_number)
             ->where('code', $request->code)
             ->where('matched', false)
             ->where('expires_at', '>', now())
