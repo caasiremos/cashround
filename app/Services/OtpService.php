@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\ExpectedException;
-use App\Http\Repositories\OtpRepository;
+use App\Repositories\OtpRepository;
 use App\Models\Member;
 use App\Models\Otp;
 use Illuminate\Http\Request;
