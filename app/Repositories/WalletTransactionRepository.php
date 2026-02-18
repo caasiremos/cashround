@@ -34,7 +34,7 @@ class WalletTransactionRepository
             throw new ExpectedException('You cannot transfer money to yourself');
         }
 
-        if ($sourceWallet->balance < $data['amount'] + WalletTransaction::FEE_AMOUNT) {
+        if ($sourceWallet->balance < $data['amount'] + WalletTransaction::MEMBER_TO_MEMBER_FEE) {
             throw new ExpectedException('Insufficient balance');
         }
 
@@ -45,12 +45,12 @@ class WalletTransactionRepository
                 'member_id' => auth('members')->user()->id,
                 'transaction_type' => TransactionTypeEnum::MEMBER_TO_MEMBER->value,
                 'amount' => $data['amount'],
-                'service_fee' => WalletTransaction::FEE_AMOUNT,
+                'service_fee' => WalletTransaction::MEMBER_TO_MEMBER_FEE,
                 'status' => WalletTransaction::STATUS_SUCCESSFUL,
                 'transaction_id' => Str::uuid()->toString(),
             ]);
 
-            Wallet::where('id', $sourceWallet->id)->decrement('balance', $data['amount'] + WalletTransaction::FEE_AMOUNT);
+            Wallet::where('id', $sourceWallet->id)->decrement('balance', $data['amount'] + WalletTransaction::MEMBER_TO_MEMBER_FEE);
             Wallet::where('id', $destinationWallet->id)->increment('balance', $data['amount']);
 
             return $transaction;
@@ -62,6 +62,24 @@ class WalletTransactionRepository
      */
     public function groupToMember(array $data): WalletTransaction
     {
+        $sourceWallet = Wallet::find($data['source_wallet_id']);
+        if (! $sourceWallet) {
+            throw new ExpectedException('Source wallet not found');
+        }
+
+        if ($sourceWallet->balance < $data['amount'] + WalletTransaction::FEE_AMOUNT) {
+            throw new ExpectedException('Insufficient balance');
+        }
+
+        $destinationWallet = Wallet::find($data['destination_wallet_id']);
+        if (! $destinationWallet) {
+            throw new ExpectedException('Destination wallet not found');
+        }
+
+        if ($destinationWallet->id === $sourceWallet->id) {
+            throw new ExpectedException('You cannot transfer money to yourself');
+        }
+
         $transaction = WalletTransaction::create([
             'source_wallet_id' => $data['source_wallet_id'],
             'destination_wallet_id' => $data['destination_wallet_id'],
@@ -187,6 +205,13 @@ class WalletTransactionRepository
         if (! $destinationWallet) {
             throw new ExpectedException('Account number not found');
         }
+        if ($sourceWallet->id === $destinationWallet->id) {
+            throw new ExpectedException('You cannot transfer money to yourself');
+        }
+
+        if ($sourceWallet->balance < $data['amount'] + WalletTransaction::MEMBER_TO_GROUP_FEE) {
+            throw new ExpectedException('Insufficient balance');
+        }
 
         return DB::transaction(function () use ($sourceWallet, $destinationWallet, $data) {
             $transaction = WalletTransaction::create([
@@ -200,7 +225,7 @@ class WalletTransactionRepository
                 'transaction_id' => Str::uuid()->toString(),
             ]);
 
-            Wallet::where('id', $sourceWallet->id)->decrement('balance', $data['amount']);
+            Wallet::where('id', $sourceWallet->id)->decrement('balance', $data['amount'] + WalletTransaction::MEMBER_TO_GROUP_FEE);
             Wallet::where('id', $destinationWallet->id)->increment('balance', $data['amount']);
 
             return $transaction;

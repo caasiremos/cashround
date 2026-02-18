@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class WalletTransaction extends Model
 {
-    public CONST FEE_AMOUNT = 1000;
+    public CONST MEMBER_TO_GROUP_FEE = 150;
+    public CONST MEMBER_TO_MEMBER_FEE = 1000;
     public CONST STATUS_PENDING = 'pending';
     public CONST STATUS_SUCCESSFUL = 'successful';
     public CONST STATUS_FAILED = 'failed';
