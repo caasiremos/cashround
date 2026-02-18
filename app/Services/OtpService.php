@@ -23,7 +23,7 @@ class OtpService
         if (blank($request->phone_number)) {
             throw new ExpectedException('Phone number is required');
         }
-        $member = Member::where('telephone_number', $request->phone_number)->first();
+        $member = Member::where('phone_number', $request->phone_number)->first();
         if (!$member) {
             throw new ExpectedException('Phone number not found');
         }
