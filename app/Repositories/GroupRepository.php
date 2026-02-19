@@ -7,6 +7,7 @@ use App\Models\GeneralLedgerAccount;
 use App\Models\Group;
 use App\Models\GroupRole;
 use App\Models\Member;
+use App\Models\TransactionAuth;
 use App\Models\Wallet;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -149,5 +150,19 @@ class GroupRepository
     public function removeMemberRole(int $groupId, int $memberId)
     {
         return GroupRole::where('group_id', $groupId)->where('member_id', $memberId)->delete();
+    }
+
+    /**
+     * Get all transaction auths for a group
+     *
+     * @param int $groupId
+     * @return ?TransactionAuth
+     */
+    public function getGroupTransactionAuth(int $groupId): ?TransactionAuth
+    {
+        return TransactionAuth::where('group_id', $groupId)
+            ->where('status', TransactionAuth::STATUS_PENDING)
+            ->latest()
+            ->first();
     }
 }

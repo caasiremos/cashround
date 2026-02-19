@@ -101,4 +101,16 @@ class GroupApiController extends Controller
         $member = $this->groupService->removeMemberRole($request->group_id, $request->member_id);
         return new ApiSuccessResponse($member, 'Member role removed successfully');
     }
+
+    /**
+     * Get all transaction auths for a group
+     *
+     * @param Request $request
+     * @return ApiSuccessResponse
+     */
+    public function getGroupTransactionAuth(Request $request)
+    {
+        $transactionAuth = $this->groupService->getGroupTransactionAuth($request->group_id);
+        return new ApiSuccessResponse($transactionAuth, 'Transaction auths fetched successfully');
+    }
 }

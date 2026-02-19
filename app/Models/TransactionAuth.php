@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class TransactionAuth extends Model
 {
+    public CONST STATUS_PENDING = 'pending';
+    public CONST STATUS_SUCCESSFUL = 'successful';
+
     protected $fillable = [
         'group_id',
         'wallet_transaction_id',

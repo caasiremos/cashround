@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Group;
 use App\Models\GroupRole;
 use App\Models\Member;
+use App\Models\TransactionAuth;
 use App\Repositories\GroupRepository;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -95,5 +96,16 @@ class GroupService
     public function removeMemberRole(int $groupId, int $memberId)
     {
         return $this->groupRepository->removeMemberRole($groupId, $memberId);
+    }
+
+    /**
+     * Get all transaction auths for a group
+     *
+     * @param int $groupId
+     * @return ?    TransactionAuth
+     */
+    public function getGroupTransactionAuth(int $groupId): ?TransactionAuth
+    {
+        return $this->groupRepository->getGroupTransactionAuth($groupId);
     }
 }
