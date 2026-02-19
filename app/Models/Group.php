@@ -27,10 +27,10 @@ class Group extends Model
     ];
 
     protected $with = [
+        'owner',
         'members',
         'wallet',
         'groupRoles',
-        'owner',
     ];
 
     protected function casts(): array
