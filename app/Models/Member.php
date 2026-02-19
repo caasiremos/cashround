@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Hash;
 
 class Member extends Authenticatable
 {
-  use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'first_name',
@@ -23,6 +23,7 @@ class Member extends Authenticatable
         'verification_code',
         'email_verified_at',
         'verification_code_expires_at',
+        'fcm_token',
     ];
 
     protected $hidden = [
@@ -78,5 +79,10 @@ class Member extends Authenticatable
         return $this->belongsToMany(Group::class, 'group_roles', 'member_id', 'group_id')
             ->withPivot('role')
             ->orderBy('group_roles.role');
+    }
+
+    public function routeNotificationForFcm($notification)
+    {
+        return $this->fcm_token; // Replace with the actual field that stores the user's FCM token
     }
 }

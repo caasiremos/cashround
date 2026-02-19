@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Enums\TransactionTypeEnum;
 use App\Models\MomoTransaction;
 use App\Models\Wallet;
+use App\Notifications\FcmNotification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -39,6 +40,13 @@ class MomoTransactionRepository
             ]);
 
             Wallet::where('id', $wallet->id)->increment('balance', $amount);
+
+            $notificationData = [
+                'title' => 'Wallet Deposit',
+                'body' => 'Your Wallet Deposit was successful.',
+                'data' => ['time' => now()],
+            ];
+            $member->notify(new FcmNotification($notificationData));
 
             return $transaction;
         });
