@@ -5,44 +5,45 @@ namespace App\Http\Controllers;
 use App\Http\Requests\GroupFormRequest;
 use App\Http\Responses\ApiSuccessResponse;
 use App\Models\Group;
-use Illuminate\Http\Request;
 use App\Services\GroupService;
+use Illuminate\Http\Request;
 
 class GroupApiController extends Controller
 {
     public function __construct(
         private GroupService $groupService,
-    ) {
-    }
+    ) {}
 
     /**
      * Get the wallet balance of a group
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return ApiSuccessResponse
      */
     public function getGroupWalletBalance(Group $group)
     {
         $balance = $this->groupService->getGroupWalletBalance($group);
+
         return new ApiSuccessResponse($balance, 'Group wallet balance fetched successfully');
     }
 
     /**
      * Get the groups of a member
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return ApiSuccessResponse
      */
     public function getMemberGroups()
     {
         $groups = $this->groupService->getMemberGroups(auth()->user());
+
         return new ApiSuccessResponse($groups, 'Groups fetched successfully');
     }
 
     /**
      * Create a new group
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return ApiSuccessResponse
      */
     public function createGroup(GroupFormRequest $request)
@@ -55,7 +56,6 @@ class GroupApiController extends Controller
     /**
      * Get a group by id
      *
-     * @param Request $request
      * @return ApiSuccessResponse
      */
     public function getGroupById(Request $request)
@@ -68,7 +68,6 @@ class GroupApiController extends Controller
     /**
      * Get the members of a group
      *
-     * @param Request $request
      * @return ApiSuccessResponse
      */
     public function getGroupMembers(Request $request)
@@ -81,36 +80,36 @@ class GroupApiController extends Controller
     /**
      * Set the role of a member in a group
      *
-     * @param Request $request
      * @return ApiSuccessResponse
      */
     public function setMemberRole(Request $request)
     {
         $member = $this->groupService->setMemberRole($request->all());
+
         return new ApiSuccessResponse($member, 'Member role set successfully');
     }
 
     /**
      * Remove the role of a member in a group
      *
-     * @param Request $request
      * @return ApiSuccessResponse
      */
     public function removeMemberRole(Request $request)
     {
         $member = $this->groupService->removeMemberRole($request->group_id, $request->member_id);
+
         return new ApiSuccessResponse($member, 'Member role removed successfully');
     }
 
     /**
      * Get all transaction auths for a group
      *
-     * @param Request $request
      * @return ApiSuccessResponse
      */
-    public function getGroupTransactionAuth(Request $request)
+    public function getGroupTransactionAuth(Group $group)
     {
-        $transactionAuth = $this->groupService->getGroupTransactionAuth($request->group_id);
+        $transactionAuth = $this->groupService->getGroupTransactionAuth($group->id);
+
         return new ApiSuccessResponse($transactionAuth, 'Transaction auths fetched successfully');
     }
 }
