@@ -30,7 +30,7 @@ class Group extends Model
         'members',
         'wallet',
         'groupRoles',
-        'owner'
+        'owner',
     ];
 
     protected function casts(): array
