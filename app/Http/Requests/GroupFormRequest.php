@@ -29,7 +29,7 @@ class GroupFormRequest extends FormRequest
             'start_date' => 'required|date',
             'description' => 'nullable|string|max:255',
             'frequency' => 'required|string|in:daily,weekly,monthly,yearly',
-            'amount' => 'required|numeric|min:0',
+            'amount' => 'required|numeric|min:5000',
         ];
     }
 
