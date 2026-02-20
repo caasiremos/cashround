@@ -37,7 +37,8 @@ class FcmNotification extends Notification
         $data = $this->notificationData['data'] ?? [];
         $data = array_map(fn ($v) => is_scalar($v) ? (string) $v : json_encode($v), $data);
 
-        return CloudMessage::withTarget('token', $token)
+        return CloudMessage::new()
+            ->withToken($token)
             ->withNotification($notification)
             ->withData($data);
     }
