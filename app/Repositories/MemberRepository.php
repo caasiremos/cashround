@@ -7,6 +7,7 @@ use App\Jobs\SendVerificationCodeEmailJob;
 use App\Models\GeneralLedgerAccount;
 use App\Models\Group;
 use App\Models\Member;
+use App\Models\Notification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -97,5 +98,31 @@ class MemberRepository
         ]);
 
         return $member;
+    }
+
+    /**
+     * Get all notifications for a member
+     *
+     * @return Collection
+     */
+    public function getMemberNotifications(): Collection
+    {
+        return Notification::where('member_id', auth()->user()->id)->get();
+    }
+
+    /**
+     * Read a notification for a member
+     *
+     * @return Notification
+     */
+    public function readMemberNotification(Request $request): Notification
+    {
+        $notification = Notification::where('id', $request->id)->where('member_id', auth()->user()->id)->first();
+        if (!$notification) {
+            throw new ExpectedException('Notification not found');
+        }
+        $notification->update(['is_read' => true]);
+
+        return $notification;
     }
 }

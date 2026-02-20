@@ -113,4 +113,27 @@ class MemberApiController extends Controller
             'FCM token updated successfully'
         );
     }
+
+    /**
+     * Get all notifications for a member
+     *
+     * @return ApiSuccessResponse
+     */
+    public function getMemberNotifications()
+    {
+        $notifications = $this->memberService->getMemberNotifications();
+        return new ApiSuccessResponse($notifications, 'Notifications fetched successfully');
+    }
+
+    /**
+     * Read a notification for a member
+     *
+     * @param Request $request
+     * @return ApiSuccessResponse
+     */
+    public function readMemberNotification(Request $request)
+    {
+        $notification = $this->memberService->readMemberNotification($request);
+        return new ApiSuccessResponse($notification, 'Notification read successfully');
+    }
 }

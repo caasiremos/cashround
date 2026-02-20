@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions\ExpectedException;
 use App\Models\Group;
 use App\Models\Member;
+use App\Models\Notification;
 use App\Models\Wallet;
 use App\Repositories\MemberRepository;
 use Illuminate\Database\Eloquent\Collection;
@@ -92,5 +93,26 @@ class MemberService
     public function getMemberById(int $id): ?Member
     {
         return $this->memberRepository->getMemberById($id);
+    }
+
+    /**
+     * Get all notifications for a member
+     *
+     * @return Collection
+     */
+    public function getMemberNotifications(): Collection
+    {
+        return $this->memberRepository->getMemberNotifications();
+    }
+
+    /**
+     * Read a notification for a member
+     *
+     * @param Request $request
+     * @return Notification
+     */
+    public function readMemberNotification(Request $request): Notification
+    {
+        return $this->memberRepository->readMemberNotification($request);
     }
 }
