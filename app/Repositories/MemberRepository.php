@@ -109,6 +109,7 @@ class MemberRepository
     {
         return Notification::where('member_id', auth()->user()->id)
             ->orderBy('created_at', 'DESC')
+            ->limit(20)
             ->get();
     }
 
