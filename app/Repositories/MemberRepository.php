@@ -143,7 +143,7 @@ class MemberRepository
         if (!$member) {
             throw new ExpectedException('Email not found');
         }
-        $token = Str::random(60);
+        $token = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         MemberPasswordResetToken::create([
             'email' => $request->email,
             'token' => $token,
