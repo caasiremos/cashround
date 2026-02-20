@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Services\Firebase\FcmClient;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -29,18 +28,18 @@ class FcmNotification extends Notification
 
     public function toFcm($notifiable)
     {
-        // Get the FCM token for the notifiable entity (user or device)
         $token = $notifiable->routeNotificationFor('fcm');
-        // Create the FirebaseNotification instance
         $notification = FirebaseNotification::create(
             $this->notificationData['title'],
             $this->notificationData['body']
         );
-        // Create the CloudMessage instance with target token and data
-        $message = CloudMessage::withTarget('token', $token)
+        // FCM requires all data values to be strings
+        $data = $this->notificationData['data'] ?? [];
+        $data = array_map(fn ($v) => is_scalar($v) ? (string) $v : json_encode($v), $data);
+
+        return CloudMessage::withTarget('token', $token)
             ->withNotification($notification)
-            ->withData($this->notificationData['data'] ?? []);
-        return $message;
+            ->withData($data);
     }
 
     /**
@@ -50,10 +49,13 @@ class FcmNotification extends Notification
      */
     public function toArray(object $notifiable): array
     {
+        $data = $this->notificationData['data'] ?? [];
+        $data = array_map(fn ($v) => is_scalar($v) ? (string) $v : json_encode($v), $data);
+
         return [
             'title' => $this->notificationData['title'],
             'body' => $this->notificationData['body'],
-            'data' => $this->notificationData['data'] ?? [],
+            'data' => $data,
         ];
     }
 }

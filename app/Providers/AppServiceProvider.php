@@ -4,11 +4,16 @@ namespace App\Providers;
 
 use App\Services\Firebase\FirebaseProjectManager as AppFirebaseProjectManager;
 use Carbon\CarbonImmutable;
+use Illuminate\Notifications\Events\NotificationSending;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Kreait\Laravel\Firebase\FirebaseProjectManager;
+use NotificationChannels\Fcm\FcmChannel;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +31,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->app->singleton(FirebaseProjectManager::class, AppFirebaseProjectManager::class);
+
+        Event::listen(NotificationSending::class, function (NotificationSending $event) {
+            if ($event->channel !== FcmChannel::class) {
+                return;
+            }
+            $tokens = Arr::wrap($event->notifiable->routeNotificationFor('fcm', $event->notification));
+            if (empty($tokens) || (is_array($tokens) && empty(array_filter($tokens)))) {
+                Log::warning('FCM not sent: member has no FCM token. Register token via POST /api/member/fcm-token', [
+                    'notifiable_id' => $event->notifiable->id ?? null,
+                    'notifiable_type' => get_class($event->notifiable),
+                ]);
+            }
+        });
 
         $this->configureDefaults();
     }

@@ -79,4 +79,26 @@ class MemberApiController extends Controller
 
         return new ApiSuccessResponse($member, 'Member fetched successfully');
     }
+
+    /**
+     * Update the authenticated member's FCM token for push notifications.
+     * Call this from the app after login or when the token is refreshed.
+     *
+     * @param Request $request
+     * @return ApiSuccessResponse
+     */
+    public function updateFcmToken(Request $request)
+    {
+        $request->validate([
+            'fcm_token' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $member = auth('members')->user();
+        $member->update(['fcm_token' => $request->input('fcm_token')]);
+
+        return new ApiSuccessResponse(
+            ['fcm_token_registered' => (bool) $member->fcm_token],
+            'FCM token updated successfully'
+        );
+    }
 }
