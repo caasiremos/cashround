@@ -15,13 +15,10 @@ class MemberService
 {
     public function __construct(
         protected MemberRepository $memberRepository,
-    ) {
-    }
+    ) {}
+
     /**
      * Get a member by account number
-     *
-     * @param string $accountNumber
-     * @return Member
      */
     public function getMemberByAccountNumber(string $accountNumber): Member
     {
@@ -40,18 +37,15 @@ class MemberService
 
     /**
      * Get the wallet balance of the member
-     *
-     * @param Member $member
-     * @return array
      */
     public function getWalletBalance(Member $member): array
     {
         return $this->memberRepository->getWalletBalance($member);
     }
+
     /**
      * Create a new member
      *
-     * @param array $data
      * @return Member
      */
     public function createMember(array $data)
@@ -61,23 +55,18 @@ class MemberService
 
     /**
      * Confirm a verification code
-     *
-     * @param Request $request
-     * @return Member
      */
     public function confirmVerificationCode(Request $request): Member
     {
-        if(!$request->has('code')) {
+        if (! $request->has('code')) {
             throw new ExpectedException('Verification code is required');
         }
+
         return $this->memberRepository->confirmVerificationCode($request);
     }
 
     /**
      * Get all members of a group
-     *
-     * @param Group $group
-     * @return Collection
      */
     public function getGroupMembers(Group $group): Collection
     {
@@ -86,9 +75,6 @@ class MemberService
 
     /**
      * Get a member by id
-     *
-     * @param int $id
-     * @return Member
      */
     public function getMemberById(int $id): ?Member
     {
@@ -97,8 +83,6 @@ class MemberService
 
     /**
      * Get all notifications for a member
-     *
-     * @return Collection
      */
     public function getMemberNotifications(): Collection
     {
@@ -107,9 +91,6 @@ class MemberService
 
     /**
      * Read a notification for a member
-     *
-     * @param Request $request
-     * @return Notification
      */
     public function readMemberNotification(Request $request): Notification
     {
@@ -118,9 +99,6 @@ class MemberService
 
     /**
      * Forgot password
-     *
-     * @param Request $request
-     * @return Member
      */
     public function forgotPassword(Request $request): Member
     {
@@ -129,9 +107,6 @@ class MemberService
 
     /**
      * Reset password
-     *
-     * @param Request $request
-     * @return Member
      */
     public function resetPassword(Request $request): Member
     {

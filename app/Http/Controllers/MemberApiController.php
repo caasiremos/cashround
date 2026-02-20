@@ -2,28 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ExpectedException;
 use App\Http\Requests\MemberFormRequest;
+use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Resources\NotificationResource;
 use App\Http\Responses\ApiErrorResponse;
-use App\Services\MemberService;
 use App\Http\Responses\ApiSuccessResponse;
+use App\Services\MemberService;
 use Illuminate\Http\Request;
 
 class MemberApiController extends Controller
 {
     public function __construct(
         private MemberService $memberService,
-    ) {
-    }
+    ) {}
+
     /**
      * Confirm a member account number
      *
-     * @param Request $request
      * @return ApiSuccessResponse
+     *
+     * @throws ExpectedException
      */
     public function getMemberByAccountNumber(Request $request)
     {
         $member = $this->memberService->getMemberByAccountNumber($request->account_number);
+
         return new ApiSuccessResponse($member, 'Member account number confirmed successfully');
     }
 
@@ -42,7 +46,6 @@ class MemberApiController extends Controller
     /**
      * Create a new member
      *
-     * @param Request $request
      * @return ApiSuccessResponse
      */
     public function register(MemberFormRequest $request)
@@ -55,18 +58,20 @@ class MemberApiController extends Controller
     /**
      * Confirm a verification code
      *
-     * @param Request $request  
      * @return ApiSuccessResponse
+     *
+     * @throws ExpectedException
      */
     public function confirmVerificationCode(Request $request)
     {
         $member = $this->memberService->confirmVerificationCode($request);
+
         return new ApiSuccessResponse($member, 'Verification code confirmed successfully');
     }
+
     /**
      * Get all members of a group
      *
-     * @param Request $request
      * @return ApiSuccessResponse
      */
     public function getGroupMembers(Request $request)
@@ -79,14 +84,13 @@ class MemberApiController extends Controller
     /**
      * Get a member by id
      *
-     * @param Request $request
      * @return ApiSuccessResponse
      */
     public function getMemberById(Request $request)
     {
         $member = $this->memberService->getMemberById($request->id);
 
-        if (!$member) {
+        if (! $member) {
             return new ApiErrorResponse('Member not found');
         }
 
@@ -97,7 +101,6 @@ class MemberApiController extends Controller
      * Update the authenticated member's FCM token for push notifications.
      * Call this from the app after login or when the token is refreshed.
      *
-     * @param Request $request
      * @return ApiSuccessResponse
      */
     public function updateFcmToken(Request $request)
@@ -123,42 +126,43 @@ class MemberApiController extends Controller
     public function getMemberNotifications()
     {
         $notifications = $this->memberService->getMemberNotifications();
+
         return new ApiSuccessResponse(NotificationResource::collection($notifications), 'Notifications fetched successfully');
     }
 
     /**
      * Read a notification for a member
      *
-     * @param Request $request
      * @return ApiSuccessResponse
      */
     public function readMemberNotification(Request $request)
     {
         $notification = $this->memberService->readMemberNotification($request);
+
         return new ApiSuccessResponse($notification, 'Notification read successfully');
     }
 
     /**
      * Forgot password
      *
-     * @param Request $request
      * @return ApiSuccessResponse
      */
     public function forgotPassword(Request $request)
     {
         $member = $this->memberService->forgotPassword($request);
+
         return new ApiSuccessResponse($member, 'Password reset email sent successfully');
     }
 
     /**
      * Reset password
      *
-     * @param Request $request
      * @return ApiSuccessResponse
      */
-    public function resetPassword(Request $request)
+    public function resetPassword(ResetPasswordRequest $request)
     {
         $member = $this->memberService->resetPassword($request);
+
         return new ApiSuccessResponse($member, 'Password reset successfully');
     }
 }
