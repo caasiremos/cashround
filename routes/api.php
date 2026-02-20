@@ -46,6 +46,7 @@ Route::prefix('member')->middleware('auth:members')->group(function () {
     Route::post('/fcm-token', [MemberApiController::class, 'updateFcmToken']);
     Route::post('/deposit', [MomoTransactionApiController::class, 'deposit']);
     Route::post('/withdraw', [MomoTransactionApiController::class, 'withdrawal']);
+    Route::post('/account-number', [MemberApiController::class, 'getMemberByAccountNumber']);
 });
 
 Route::prefix('wallet-transactions')->middleware('auth:members')->group(function () {

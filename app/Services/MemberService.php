@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions\ExpectedException;
 use App\Models\Group;
 use App\Models\Member;
+use App\Models\Wallet;
 use App\Repositories\MemberRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -15,6 +16,27 @@ class MemberService
         protected MemberRepository $memberRepository,
     ) {
     }
+    /**
+     * Get a member by account number
+     *
+     * @param string $accountNumber
+     * @return Member
+     */
+    public function getMemberByAccountNumber(string $accountNumber): Member
+    {
+        $accountNumber = trim($accountNumber);
+
+        $wallet = Wallet::where('account_number', $accountNumber)
+            ->whereNull('group_id')
+            ->first();
+
+        if (! $wallet) {
+            throw new ExpectedException('Member with account number not found');
+        }
+
+        return $wallet->member;
+    }
+
     /**
      * Get the wallet balance of the member
      *

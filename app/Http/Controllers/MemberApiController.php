@@ -15,6 +15,18 @@ class MemberApiController extends Controller
     ) {
     }
     /**
+     * Confirm a member account number
+     *
+     * @param Request $request
+     * @return ApiSuccessResponse
+     */
+    public function getMemberByAccountNumber(Request $request)
+    {
+        $member = $this->memberService->getMemberByAccountNumber($request->account_number);
+        return new ApiSuccessResponse($member, 'Member account number confirmed successfully');
+    }
+
+    /**
      * Get the wallet balance of the member
      *
      * @return ApiSuccessResponse
