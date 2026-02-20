@@ -265,6 +265,6 @@ class WalletTransactionRepository
      */
     public function getMemberWalletTransactions(array $data): Collection
     {
-        return WalletTransaction::where('member_id', $data['member_id'])->get();
+        return WalletTransaction::where('member_id', auth()->user()->id)->get();
     }
 }
