@@ -6,6 +6,7 @@ use App\Enums\TransactionTypeEnum;
 use App\Models\MomoTransaction;
 use App\Models\Notification;
 use App\Models\Wallet;
+use App\Models\WalletTransaction;
 use App\Notifications\FcmNotification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -96,6 +97,16 @@ class MomoTransactionRepository
      */
     public function getMemberMomoTransactions(): Collection
     {
-        return MomoTransaction::where('member_id', auth('members')->user()->id)->get();
+        return MomoTransaction::where('member_id', auth('members')->user()->id)->orderBy('created_at', 'DESC')->limit(3)->get();
+    }
+
+    /**
+     * Get all wallet transactions for a member
+     *
+     * @return Collection
+     */
+    public function getMemberWalletTransactions(): Collection
+    {
+        return WalletTransaction::where('member_id', auth('members')->user()->id)->orderBy('created_at', 'DESC')->limit(3)->get();
     }
 }

@@ -34,6 +34,7 @@ Route::prefix('groups')->middleware('auth:members')->group(function () {
     Route::post('/{group}/rotation/reschedule', [GroupRotationApiController::class, 'rescheduleCurrentRecipient']);
     Route::post('/{group}/invites', [GroupInviteApiController::class, 'sendInvite']);
     Route::get('/{group}/wallet-balance', [GroupApiController::class, 'getGroupWalletBalance']);
+    Route::get('/{group}/wallet-transactions', [WalletTransactionApiController::class, 'getGroupWalletTransactions']);
 });
 
 Route::prefix('invites')->middleware('auth:members')->group(function () {
@@ -51,6 +52,8 @@ Route::prefix('member')->middleware('auth:members')->group(function () {
     Route::post('/account-number', [MemberApiController::class, 'getMemberByAccountNumber']);
     Route::get('/notifications', [MemberApiController::class, 'getMemberNotifications']);
     Route::post('/notifications/read', [MemberApiController::class, 'readMemberNotification']);
+    Route::get('/momo-transactions', [MomoTransactionApiController::class, 'getMemberMomoTransactions']);
+    Route::get('/wallet-transactions', [WalletTransactionApiController::class, 'getMemberWalletTransactions']);
 });
 
 Route::prefix('wallet-transactions')->middleware('auth:members')->group(function () {

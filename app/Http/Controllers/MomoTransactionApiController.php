@@ -45,4 +45,15 @@ class MomoTransactionApiController extends Controller
         $transactions = $this->momoTransactionService->getMemberMomoTransactions();
         return new ApiSuccessResponse($transactions, 'Momo transactions fetched successfully');
     }
+
+    /**
+     * Get all wallet transactions for a member
+     *
+     * @return ApiSuccessResponse
+     */
+    public function getMemberWalletTransactions()
+    {
+        $transactions = $this->momoTransactionService->getMemberWalletTransactions();
+        return new ApiSuccessResponse($transactions, 'Momo transactions fetched successfully');
+    }
 }

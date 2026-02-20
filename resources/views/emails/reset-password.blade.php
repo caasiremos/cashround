@@ -25,7 +25,10 @@
                                 Hi,
                             </p>
                             <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #52525b;">
-                                Use the code below to reset your password.
+                                A password reset was requested for your account.
+                            </p>
+                            <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #52525b;">
+                                Please use the code below to continue:
                             </p>
                             <!-- Code box -->
                             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
@@ -38,7 +41,7 @@
                                 </tr>
                             </table>
                             <p style="margin: 24px 0 0; font-size: 13px; line-height: 1.5; color: #71717a;">
-                                This code expires in 15 minutes. If you didn’t request this, you can safely ignore this email.
+                                This code expires in 15 minutes. If you didn’t request this, you can safely ignore this email.Your account remains secure.
                             </p>
                         </td>
                     </tr>

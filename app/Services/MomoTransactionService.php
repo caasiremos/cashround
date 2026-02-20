@@ -39,4 +39,14 @@ class MomoTransactionService
     {
         return $this->momoTransactionRepository->getMemberMomoTransactions();
     }
+
+    /**
+     * Get all wallet transactions for a member
+     *
+     * @return Collection
+     */
+    public function getMemberWalletTransactions(): Collection
+    {
+        return $this->momoTransactionRepository->getMemberWalletTransactions();
+    }
 }

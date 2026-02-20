@@ -257,7 +257,7 @@ class WalletTransactionRepository
      */
     public function getGroupWalletTransactions(array $data): Collection
     {
-        return WalletTransaction::where('group_id', $data['group_id'])->get();
+        return WalletTransaction::where('group_id', $data['group_id'])->orderBy('created_at', 'DESC')->limit(10)->get();
     }
 
     /**
