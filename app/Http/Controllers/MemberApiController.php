@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\MemberFormRequest;
+use App\Http\Resources\NotificationResource;
 use App\Http\Responses\ApiErrorResponse;
 use App\Services\MemberService;
 use App\Http\Responses\ApiSuccessResponse;
@@ -122,7 +123,7 @@ class MemberApiController extends Controller
     public function getMemberNotifications()
     {
         $notifications = $this->memberService->getMemberNotifications();
-        return new ApiSuccessResponse($notifications, 'Notifications fetched successfully');
+        return new ApiSuccessResponse(NotificationResource::collection($notifications), 'Notifications fetched successfully');
     }
 
     /**

@@ -7,10 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Notification extends Model
 {
     protected $table = 'notifications';
-    protected $primaryKey = 'id';
-    public $incrementing = false;
-    protected $keyType = 'string';
-    public $timestamps = true;
 
     protected $fillable = [
         'member_id',
