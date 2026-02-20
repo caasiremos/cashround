@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\TransactionAuth;
 use App\Models\WalletTransaction;
 use App\Repositories\WalletTransactionRepository;
+use Illuminate\Database\Eloquent\Collection;
 
 class WalletTransactionService
 {
@@ -12,9 +13,6 @@ class WalletTransactionService
 
     /**
      * Create a new wallet transaction for a member to member transfer
-     *
-     * @param array $data
-     * @return WalletTransaction
      */
     public function memberToMember(array $data): WalletTransaction
     {
@@ -23,9 +21,6 @@ class WalletTransactionService
 
     /**
      * Create a new wallet transaction for a group to member transfer
-     *
-     * @param array $data
-     * @return WalletTransaction
      */
     public function groupToMember(array $data): WalletTransaction
     {
@@ -35,9 +30,6 @@ class WalletTransactionService
     /**
      * Confirm a group-to-member transaction. When all approval roles have confirmed,
      * marks the wallet transaction and transaction auth as successful.
-     *
-     * @param array $data
-     * @return TransactionAuth
      */
     public function confirmGroupToWalletTransfer(array $data): TransactionAuth
     {
@@ -46,9 +38,6 @@ class WalletTransactionService
 
     /**
      * Create a new wallet transaction for a member to group transfer
-     *
-     * @param array $data
-     * @return WalletTransaction
      */
     public function memberToGroup(array $data): WalletTransaction
     {
@@ -57,9 +46,6 @@ class WalletTransactionService
 
     /**
      * Get all transaction auths for a group
-     *
-     * @param array $data
-     * @return Collection
      */
     public function getGroupTransactionAuths(array $data): Collection
     {
@@ -68,9 +54,6 @@ class WalletTransactionService
 
     /**
      * Get all transaction auths for a member
-     *
-     * @param array $data
-     * @return Collection
      */
     public function getMemberTransactionAuths(array $data): Collection
     {
@@ -79,9 +62,6 @@ class WalletTransactionService
 
     /**
      * Get all wallet transactions for a group
-     *
-     * @param array $data
-     * @return Collection
      */
     public function getGroupWalletTransactions(array $data): Collection
     {
@@ -90,7 +70,6 @@ class WalletTransactionService
 
     /**
      * Get all wallet transactions for a member
-     *
      * @param array $data
      * @return Collection
      */
