@@ -10,31 +10,25 @@ use App\Models\Member;
 use App\Models\MemberPasswordResetToken;
 use App\Models\Notification;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class MemberRepository
 {
     /**
      * Get the wallet balance of the member
-     *
-     * @param Member $member
-     * @return array
      */
     public function getWalletBalance(Member $member): array
     {
         return [
             'balance' => $member->wallet->balance,
-            'account_number' => $member->wallet->account_number
+            'account_number' => $member->wallet->account_number,
         ];
     }
+
     /**
      * Get all members of a group
-     *
-     * @param Group $group
-     * @return Collection
      */
     public function getGroupMembers(Group $group): Collection
     {
@@ -43,9 +37,6 @@ class MemberRepository
 
     /**
      * Get a member by id
-     *
-     * @param int $id
-     * @return Member|null
      */
     public function getMemberById(int $id): ?Member
     {
@@ -54,9 +45,6 @@ class MemberRepository
 
     /**
      * Create a new member
-     *
-     * @param array $data
-     * @return Member
      */
     public function createMember(array $data): Member
     {
@@ -74,17 +62,16 @@ class MemberRepository
             return $member;
         });
     }
+
     /**
      * Confirm a verification code
      *
-     * @param Member $member
-     * @param int $code
-     * @return Member
+     * @throws ExpectedException
      */
     public function confirmVerificationCode(Request $request): Member
     {
         $member = Member::query()->where('email', $request->email)->first();
-        if (!$member) {
+        if (! $member) {
             throw new ExpectedException('Member not found');
         }
         if ($member->verification_code !== $request->code) {
@@ -104,8 +91,6 @@ class MemberRepository
 
     /**
      * Get all notifications for a member
-     *
-     * @return Collection
      */
     public function getMemberNotifications(): Collection
     {
@@ -117,13 +102,11 @@ class MemberRepository
 
     /**
      * Read a notification for a member
-     *
-     * @return Notification
      */
     public function readMemberNotification(Request $request): Notification
     {
         $notification = Notification::where('id', $request->id)->where('member_id', auth()->user()->id)->first();
-        if (!$notification) {
+        if (! $notification) {
             throw new ExpectedException('Notification not found');
         }
         $notification->update(['is_read' => true]);
@@ -133,48 +116,47 @@ class MemberRepository
 
     /**
      * Forgot password
-     *
-     * @param Request $request
-     * @return Member
      */
     public function forgotPassword(Request $request): Member
     {
         $member = Member::query()->where('email', $request->email)->first();
-        if (!$member) {
+        if (! $member) {
             throw new ExpectedException('Email not found');
         }
         $token = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        MemberPasswordResetToken::create([
-            'email' => $request->email,
-            'token' => $token,
-            'expires_at' => now()->addHours(1),
-        ]);
+        MemberPasswordResetToken::updateOrCreate(
+            [
+                'email' => $request->email,
+            ],
+            [
+                'token' => $token,
+                'expires_at' => now()->addHours(1),
+            ]);
         SendResetPasswordEmailJob::dispatch($request->email, $token);
+
         return $member;
     }
 
     /**
      * Reset password
-     *
-     * @param Request $request
-     * @return Member
      */
     public function resetPassword(Request $request): Member
     {
         $token = MemberPasswordResetToken::query()->where('token', $request->token)->first();
-        if (!$token) {
+        if (! $token) {
             throw new ExpectedException('Invalid token');
         }
         if ($token->expires_at < now()) {
             throw new ExpectedException('Token expired');
         }
         $member = Member::query()->where('email', $token->email)->first();
-        if (!$member) {
+        if (! $member) {
             throw new ExpectedException('Email not found');
         }
         $member->password = Hash::make($request->password);
         $member->save();
         $token->delete();
+
         return $member;
     }
 }
