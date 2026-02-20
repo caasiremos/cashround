@@ -63,9 +63,9 @@ class WalletTransactionService
     /**
      * Get all wallet transactions for a group
      */
-    public function getGroupWalletTransactions(array $data): Collection
+    public function getGroupWalletTransactions(int $groupId): Collection
     {
-        return $this->walletTransactionRepository->getGroupWalletTransactions($data);
+        return $this->walletTransactionRepository->getGroupWalletTransactions($groupId);
     }
 
     /**

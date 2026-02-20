@@ -255,9 +255,9 @@ class WalletTransactionRepository
     /**
      * Get all wallet transactions for a group
      */
-    public function getGroupWalletTransactions(array $data): Collection
+    public function getGroupWalletTransactions(int $groupId): Collection
     {
-        return WalletTransaction::where('group_id', $data['group_id'])->orderBy('created_at', 'DESC')->limit(10)->get();
+        return WalletTransaction::where('group_id', $groupId)->orderBy('created_at', 'DESC')->limit(10)->get();
     }
 
     /**
