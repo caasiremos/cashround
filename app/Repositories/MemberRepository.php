@@ -107,7 +107,9 @@ class MemberRepository
      */
     public function getMemberNotifications(): Collection
     {
-        return Notification::where('member_id', auth()->user()->id)->get();
+        return Notification::where('member_id', auth()->user()->id)
+            ->orderBy('created_at', 'DESC')
+            ->get();
     }
 
     /**
