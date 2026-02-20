@@ -137,4 +137,28 @@ class MemberApiController extends Controller
         $notification = $this->memberService->readMemberNotification($request);
         return new ApiSuccessResponse($notification, 'Notification read successfully');
     }
+
+    /**
+     * Forgot password
+     *
+     * @param Request $request
+     * @return ApiSuccessResponse
+     */
+    public function forgotPassword(Request $request)
+    {
+        $member = $this->memberService->forgotPassword($request);
+        return new ApiSuccessResponse($member, 'Password reset email sent successfully');
+    }
+
+    /**
+     * Reset password
+     *
+     * @param Request $request
+     * @return ApiSuccessResponse
+     */
+    public function resetPassword(Request $request)
+    {
+        $member = $this->memberService->resetPassword($request);
+        return new ApiSuccessResponse($member, 'Password reset successfully');
+    }
 }

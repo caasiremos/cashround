@@ -115,4 +115,26 @@ class MemberService
     {
         return $this->memberRepository->readMemberNotification($request);
     }
+
+    /**
+     * Forgot password
+     *
+     * @param Request $request
+     * @return Member
+     */
+    public function forgotPassword(Request $request): Member
+    {
+        return $this->memberRepository->forgotPassword($request);
+    }
+
+    /**
+     * Reset password
+     *
+     * @param Request $request
+     * @return Member
+     */
+    public function resetPassword(Request $request): Member
+    {
+        return $this->memberRepository->resetPassword($request);
+    }
 }

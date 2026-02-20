@@ -19,6 +19,8 @@ Route::post('/member/login', [MemberLoginApiController::class, 'login']);
 Route::post('/member/logout', [MemberLoginApiController::class, 'logout'])->middleware('auth:members');
 Route::post('/member/register', [MemberApiController::class, 'register']);
 Route::post('/member/confirm-verification-code', [MemberApiController::class, 'confirmVerificationCode']);
+Route::post('/member/forgot-password', [MemberApiController::class, 'forgotPassword']);
+Route::post('/member/reset-password', [MemberApiController::class, 'resetPassword']);
 
 Route::prefix('groups')->middleware('auth:members')->group(function () {
     Route::get('/', [GroupApiController::class, 'getMemberGroups']);

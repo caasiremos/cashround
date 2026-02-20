@@ -3,15 +3,17 @@
 namespace App\Repositories;
 
 use App\Exceptions\ExpectedException;
+use App\Jobs\SendResetPasswordEmailJob;
 use App\Jobs\SendVerificationCodeEmailJob;
-use App\Models\GeneralLedgerAccount;
 use App\Models\Group;
 use App\Models\Member;
+use App\Models\MemberPasswordResetToken;
 use App\Models\Notification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class MemberRepository
 {
@@ -127,5 +129,52 @@ class MemberRepository
         $notification->update(['is_read' => true]);
 
         return $notification;
+    }
+
+    /**
+     * Forgot password
+     *
+     * @param Request $request
+     * @return Member
+     */
+    public function forgotPassword(Request $request): Member
+    {
+        $member = Member::query()->where('email', $request->email)->first();
+        if (!$member) {
+            throw new ExpectedException('Email not found');
+        }
+        $token = Str::random(60);
+        MemberPasswordResetToken::create([
+            'email' => $request->email,
+            'token' => $token,
+            'expires_at' => now()->addHours(1),
+        ]);
+        SendResetPasswordEmailJob::dispatch($request->email, $token);
+        return $member;
+    }
+
+    /**
+     * Reset password
+     *
+     * @param Request $request
+     * @return Member
+     */
+    public function resetPassword(Request $request): Member
+    {
+        $token = MemberPasswordResetToken::query()->where('token', $request->token)->first();
+        if (!$token) {
+            throw new ExpectedException('Invalid token');
+        }
+        if ($token->expires_at < now()) {
+            throw new ExpectedException('Token expired');
+        }
+        $member = Member::query()->where('email', $token->email)->first();
+        if (!$member) {
+            throw new ExpectedException('Email not found');
+        }
+        $member->password = Hash::make($request->password);
+        $member->save();
+        $token->delete();
+        return $member;
     }
 }
