@@ -18,6 +18,7 @@ class WalletTransaction extends Model
         'source_wallet_id',
         'destination_wallet_id',
         'member_id',
+        'group_id',
         'transaction_type',
         'amount',
         'service_fee',
