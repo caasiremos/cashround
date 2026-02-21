@@ -6,6 +6,7 @@ use App\Enums\TransactionTypeEnum;
 use App\Exceptions\ExpectedException;
 use App\Models\MomoTransaction;
 use App\Models\Notification;
+use App\Models\TransactionFee;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
 use App\Notifications\FcmNotification;
@@ -70,14 +71,15 @@ class MomoTransactionRepository
         $amount = (float) $data['amount'];
         $phoneNumber = $data['phone_number'];
         $reference = Str::uuid()->toString();
-        $transactionFee = $this->getTransactionFee($amount, PhoneNumberUtil::provider($phoneNumber));
-        $totalAmount = $amount + $transactionFee;
+        $serviceFee = $this->getServiceFee($amount, PhoneNumberUtil::provider($phoneNumber));
+        $providerFee = $this->getProviderFee($amount, PhoneNumberUtil::provider($phoneNumber));
+        $totalAmount = $amount + $serviceFee;
         if($totalAmount > $wallet->balance){
             throw new ExpectedException('Insufficient balance');
         }
         $response = MobileMoney::initiateDisbursement($reference, $phoneNumber, $amount);
         if ($response['success'] === true) {
-            DB::transaction(function () use ($member, $wallet, $amount, $phoneNumber, $reference, $response) {
+            DB::transaction(function () use ($member, $wallet, $amount, $phoneNumber, $reference, $response, $serviceFee, $providerFee) {
                 $transaction = MomoTransaction::create([
                     'member_id' => $member->id,
                     'amount' => $amount,
@@ -86,8 +88,8 @@ class MomoTransactionRepository
                     'internal_status' => MomoTransaction::STATUS_PENDING,
                     'external_status' => MomoTransaction::STATUS_PENDING,
                     'external_id' => $response['internal_reference'],
-                    'provider_fee' => 0,
-                    'service_fee' => 0,
+                    'provider_fee' => $providerFee,
+                    'service_fee' => $serviceFee,
                     'telco_provider' => PhoneNumberUtil::provider($phoneNumber),
                     'wallet_id' => $wallet->id,
                     'internal_id' => $reference,
@@ -184,6 +186,8 @@ class MomoTransactionRepository
             DB::transaction(function () use ($request) {
                 $momoTransaction = MomoTransaction::where('internal_id', $request->customer_reference)->first();
                 if ($momoTransaction) {
+                    $revenueWallet = Wallet::where('account_number', 'like', 'CRR%')->first();
+                    $revenueWallet->increment('balance', ($momoTransaction->service_fee + $momoTransaction->provider_fee));
                     $momoTransaction->internal_status = $request->status;
                     $momoTransaction->external_status = $request->status;
                     $momoTransaction->external_id = $request->internal_reference;
@@ -221,10 +225,19 @@ class MomoTransactionRepository
         }
     }
 
-    public function getTransactionFee(int $amount, string $telcoProvider): int
+    public function getServiceFee(int $amount, string $telcoProvider): int
     {
         return TransactionFee::where('provider', $telcoProvider)
+            ->where('transaction_type', TransactionTypeEnum::WITHDRAWAL->value)
             ->where('min_amount', '<=', $amount)
             ->where('max_amount', '>=', $amount)->first()->service_fee; 
+    }
+
+    public function getProviderFee(int $amount, string $telcoProvider): int
+    {
+        return TransactionFee::where('provider', $telcoProvider)
+            ->where('transaction_type', TransactionTypeEnum::WITHDRAWAL->value)
+            ->where('min_amount', '<=', $amount)
+            ->where('max_amount', '>=', $amount)->first()->provider_fee;
     }
 }
