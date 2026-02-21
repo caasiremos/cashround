@@ -70,6 +70,11 @@ class MomoTransactionRepository
         $amount = (float) $data['amount'];
         $phoneNumber = $data['phone_number'];
         $reference = Str::uuid()->toString();
+        $transactionFee = $this->getTransactionFee($amount, PhoneNumberUtil::provider($phoneNumber));
+        $totalAmount = $amount + $transactionFee;
+        if($totalAmount > $wallet->balance){
+            throw new ExpectedException('Insufficient balance');
+        }
         $response = MobileMoney::initiateDisbursement($reference, $phoneNumber, $amount);
         if ($response['success'] === true) {
             DB::transaction(function () use ($member, $wallet, $amount, $phoneNumber, $reference, $response) {
@@ -214,5 +219,12 @@ class MomoTransactionRepository
         } else {
             throw new ExpectedException('Relworx disbursement callback failed');
         }
+    }
+
+    public function getTransactionFee(int $amount, string $telcoProvider): int
+    {
+        return TransactionFee::where('provider', $telcoProvider)
+            ->where('min_amount', '<=', $amount)
+            ->where('max_amount', '>=', $amount)->first()->service_fee; 
     }
 }
