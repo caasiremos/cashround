@@ -69,6 +69,6 @@ class MomoTransactionService
      */
     public function relworxDisbursementCallback(Request $request)
     {
-        $this->momoTransactionRepository->relworxDisbursementCallback($request);
+        return $this->momoTransactionRepository->relworxDisbursementCallback($request);
     }
 }

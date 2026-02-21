@@ -68,26 +68,32 @@ class MomoTransactionRepository
         $member = auth('members')->user();
         $wallet = $member->wallet;
         $amount = (float) $data['amount'];
-        DB::transaction(function () use ($member, $wallet, $amount, $data) {
-            $transaction = MomoTransaction::create([
-                'member_id' => $member->id,
-                'amount' => $amount,
-                'phone_number' => $data['phone_number'],
-                'transaction_type' => TransactionTypeEnum::WITHDRAWAL->value,
-                'internal_status' => 'pending',
-                'external_status' => 'pending',
-                'external_id' => null,
-                'provider_fee' => 0,
-                'service_fee' => 0,
-                'wallet_id' => $wallet->id,
-                'internal_id' => Str::uuid()->toString(),
-                'error_message' => null,
-            ]);
+        $phoneNumber = $data['phone_number'];
+        $reference = Str::uuid()->toString();
+        $response = MobileMoney::initiateDisbursement($reference, $phoneNumber, $amount);
+        if ($response['success'] === true) {
+            DB::transaction(function () use ($member, $wallet, $amount, $phoneNumber, $reference, $response) {
+                $transaction = MomoTransaction::create([
+                    'member_id' => $member->id,
+                    'amount' => $amount,
+                    'phone_number' => $phoneNumber,
+                    'transaction_type' => TransactionTypeEnum::WITHDRAWAL->value,
+                    'internal_status' => MomoTransaction::STATUS_PENDING,
+                    'external_status' => MomoTransaction::STATUS_PENDING,
+                    'external_id' => $response['internal_reference'],
+                    'provider_fee' => 0,
+                    'service_fee' => 0,
+                    'telco_provider' => PhoneNumberUtil::provider($phoneNumber),
+                    'wallet_id' => $wallet->id,
+                    'internal_id' => $reference,
+                    'error_message' => null,
+                ]);
 
-            Wallet::where('id', $wallet->id)->decrement('balance', $amount);
-
-            return $transaction;
-        });
+                return $transaction;
+            });
+        } else {
+            throw new ExpectedException('Failed initiating Mobile Money withdrawal');
+        }
     }
 
     /**
@@ -141,8 +147,8 @@ class MomoTransactionRepository
                         'title' => 'Wallet Deposit Successful',
                         'body' => 'Your Wallet Deposit of UGX' . number_format($request->amount) . ' was successful.',
                     ]);
-                }else{
-                      $notificationData = [
+                } else {
+                    $notificationData = [
                         'title' => 'Wallet Deposit Failed',
                         'body' => 'Your Wallet Deposit of UGX' . number_format($request->amount) . ' was failed.',
                         'data' => ['time' => now()],
@@ -158,6 +164,55 @@ class MomoTransactionRepository
             });
         } else {
             throw new ExpectedException('Relworx collection callback failed');
+        }
+    }
+    /**
+     * Relworx disbursement callback
+     *
+     * @param Request $request
+     * @return MomoTransaction
+     */
+    public function relworxDisbursementCallback(Request $request)
+    {
+        Logger::info(['RELWORX DISBURSEMENT CALLBACK RESPONSE' => $request->all()]);
+        if ($request->status === 'success') {
+            DB::transaction(function () use ($request) {
+                $momoTransaction = MomoTransaction::where('internal_id', $request->customer_reference)->first();
+                if ($momoTransaction) {
+                    $momoTransaction->internal_status = $request->status;
+                    $momoTransaction->external_status = $request->status;
+                    $momoTransaction->external_id = $request->internal_reference;
+                    $momoTransaction->save();
+                    Wallet::where('member_id', $momoTransaction->member_id)->decrement('balance', $request->amount);
+                    $notificationData = [
+                        'title' => 'Wallet Withdrawal',
+                        'body' => 'Your Wallet Withdrawal of UGX' . number_format($request->amount) . ' was successful.',
+                        'data' => ['time' => now()],
+                    ];
+                    $momoTransaction->member->notify(new FcmNotification($notificationData));
+                    Notification::create([
+                        'member_id' => $momoTransaction->member_id,
+                        'title' => 'Wallet Withdrawal Successful',
+                        'body' => 'Your Wallet Withdrawal of UGX' . number_format($request->amount) . ' was successful.',
+                    ]);
+                } else {
+                    throw new ExpectedException('Momo transaction not found');
+                    $notificationData = [
+                        'title' => 'Wallet Withdrawal Failed',
+                        'body' => 'Your Wallet Withdrawal of UGX' . number_format($request->amount) . ' was failed.',
+                        'data' => ['time' => now()],
+                    ];
+                    $momoTransaction->member->notify(new FcmNotification($notificationData));
+                    Notification::create([
+                        'member_id' => $momoTransaction->member_id,
+                        'title' => 'Wallet Withdrawal Failed',
+                        'body' => 'Your Wallet Withdrawal of UGX' . number_format($request->amount) . ' failed to complete.',
+                    ]);
+                    throw new ExpectedException('Relworx disbursement callback failed');
+                }
+            });
+        } else {
+            throw new ExpectedException('Relworx disbursement callback failed');
         }
     }
 }

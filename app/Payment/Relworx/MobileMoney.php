@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Http;
 class MobileMoney
 {
     private const INITIATE_COLLECTION_URL = "https://payments.relworx.com/api/mobile-money/request-payment";
+    private const INITIATE_DISBURSEMENT_URL = "https://payments.relworx.com/api/mobile-money/send-payment";
     private const GET_TRANSACTION_STATUS_URL = "https://payments.relworx.com/api/mobile-money/check-request-status";
     private $apiKey;
 
@@ -37,6 +38,28 @@ class MobileMoney
             ],
         )->post(self::INITIATE_COLLECTION_URL, $params)->json();
         Logger::info('Relworx initiate collection response', $response);
+        return $response;
+    }
+
+    public static function initiateDisbursement(string $reference, int $msisdn, int $amount)
+    {
+        $params = [
+            'account_no' => config('services.relworx.business_account'),
+            'reference' => $reference,
+            'msisdn' => "+".$msisdn,
+            'currency' => "UGX",
+            'amount' => $amount,
+            'description' => "Wallet Withdrawal"
+        ];
+        Logger::info('Relworx initiate disbursement params: ' . json_encode($params));
+        $response = Http::asJson()->withHeaders(
+            [
+                'Accept' => 'application/vnd.relworx.v2',
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . config('services.relworx.api_key')
+            ],
+        )->post(self::INITIATE_DISBURSEMENT_URL, $params)->json();
+        Logger::info('Relworx initiate disbursement response', $response);
         return $response;
     }
 
