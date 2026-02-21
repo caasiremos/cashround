@@ -227,6 +227,7 @@ class MomoTransactionRepository
 
     public function getServiceFee(int $amount, string $telcoProvider): int
     {
+        Logger::info('Getting service fee for amount: ' . $amount . ' and provider: ' . $telcoProvider);
         return TransactionFee::where('provider', $telcoProvider)
             ->where('transaction_type', TransactionTypeEnum::WITHDRAWAL->value)
             ->where('min_amount', '<=', $amount)
@@ -235,6 +236,7 @@ class MomoTransactionRepository
 
     public function getProviderFee(int $amount, string $telcoProvider): int
     {
+        Logger::info('Getting provider fee for amount: ' . $amount . ' and provider: ' . $telcoProvider);
         return TransactionFee::where('provider', $telcoProvider)
             ->where('transaction_type', TransactionTypeEnum::WITHDRAWAL->value)
             ->where('min_amount', '<=', $amount)
