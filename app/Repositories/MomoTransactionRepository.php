@@ -138,10 +138,21 @@ class MomoTransactionRepository
                     $momoTransaction->member->notify(new FcmNotification($notificationData));
                     Notification::create([
                         'member_id' => $momoTransaction->member_id,
-                        'title' => 'Wallet Deposit',
-                        'body' => 'Your Wallet Deposit of ' . $request->amount . ' was successful.',
+                        'title' => 'Wallet Deposit Successful',
+                        'body' => 'Your Wallet Deposit of UGX' . number_format($request->amount) . ' was successful.',
                     ]);
                 }else{
+                      $notificationData = [
+                        'title' => 'Wallet Deposit Failed',
+                        'body' => 'Your Wallet Deposit of UGX' . number_format($request->amount) . ' was failed.',
+                        'data' => ['time' => now()],
+                    ];
+                    $momoTransaction->member->notify(new FcmNotification($notificationData));
+                    Notification::create([
+                        'member_id' => $momoTransaction->member_id,
+                        'title' => 'Wallet Deposit',
+                        'body' => 'Your Wallet Deposit of UGX' . number_format($request->amount) . ' failed to complete.',
+                    ]);
                     throw new ExpectedException('Momo transaction not found');
                 }
             });
