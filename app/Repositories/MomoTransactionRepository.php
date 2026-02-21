@@ -122,7 +122,7 @@ class MomoTransactionRepository
         Logger::info(['RELWORX COLLECTION CALLBACK RESPONSE' => $request->all()]);
         if ($request->status === 'success') {
             DB::transaction(function () use ($request) {
-                $momoTransaction = MomoTransaction::where('internal_id', $request->reference)->first();
+                $momoTransaction = MomoTransaction::where('internal_id', $request->customer_reference)->first();
                 if ($momoTransaction) {
                     $momoTransaction->internal_status = $request->status;
                     $momoTransaction->external_status = $request->status;
@@ -141,6 +141,8 @@ class MomoTransactionRepository
                         'title' => 'Wallet Deposit',
                         'body' => 'Your Wallet Deposit of ' . $request->amount . ' was successful.',
                     ]);
+                }else{
+                    throw new ExpectedException('Momo transaction not found');
                 }
             });
         } else {
