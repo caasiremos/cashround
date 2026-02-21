@@ -20,7 +20,7 @@ class MomoTransactionApiController extends Controller
     {
         $transaction = $this->momoTransactionService->deposit($request->all());
 
-        return new ApiSuccessResponse($transaction, 'Deposit successful');
+        return new ApiSuccessResponse($transaction, 'Mobile Money deposit initiated successfully, please wait for the pin prompt to complete the transaction');
     }
 
     /**
