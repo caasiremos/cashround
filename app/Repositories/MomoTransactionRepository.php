@@ -74,10 +74,13 @@ class MomoTransactionRepository
         $serviceFee = $this->getServiceFee($amount, PhoneNumberUtil::provider($phoneNumber));
         $providerFee = $this->getProviderFee($amount, PhoneNumberUtil::provider($phoneNumber));
         $totalAmount = $amount + $serviceFee;
+        if($amount < 2000){
+            throw new ExpectedException('You can withdraw a minimum of UGX 2,000');
+        }
         if($totalAmount > $wallet->balance){
             throw new ExpectedException('Insufficient balance');
         }
-        $response = MobileMoney::initiateDisbursement($reference, $phoneNumber, $totalAmount);
+        $response = MobileMoney::initiateDisbursement($reference, $phoneNumber, $amount);
         if ($response['success'] === true) {
             DB::transaction(function () use ($member, $wallet, $amount, $phoneNumber, $reference, $response, $serviceFee, $providerFee) {
                 $transaction = MomoTransaction::create([
@@ -187,12 +190,12 @@ class MomoTransactionRepository
                 $momoTransaction = MomoTransaction::where('internal_id', $request->customer_reference)->first();
                 if ($momoTransaction) {
                     $revenueWallet = Wallet::where('account_number', 'like', 'CRR%')->first();
-                    $revenueWallet->increment('balance', ($momoTransaction->service_fee + $momoTransaction->provider_fee));
+                    $revenueWallet->increment('balance', ($momoTransaction->service_fee));
                     $momoTransaction->internal_status = $request->status;
                     $momoTransaction->external_status = $request->status;
                     $momoTransaction->external_id = $request->internal_reference;
                     $momoTransaction->save();
-                    Wallet::where('member_id', $momoTransaction->member_id)->decrement('balance', $request->amount);
+                    Wallet::where('member_id', $momoTransaction->member_id)->decrement('balance', $request->amount + $momoTransaction->service_fee + $momoTransaction->provider_fee);
                     $notificationData = [
                         'title' => 'Wallet Withdrawal',
                         'body' => 'Your Wallet Withdrawal of UGX' . number_format($request->amount) . ' was successful.',
