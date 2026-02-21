@@ -228,18 +228,32 @@ class MomoTransactionRepository
     public function getServiceFee(int $amount, string $telcoProvider): int
     {
         Logger::info('Getting service fee for amount: ' . $amount . ' and provider: ' . $telcoProvider);
-        return TransactionFee::where('provider', $telcoProvider)
+        $fee = TransactionFee::where('provider', $telcoProvider)
             ->where('transaction_type', TransactionTypeEnum::WITHDRAWAL->value)
             ->where('min_amount', '<=', $amount)
-            ->where('max_amount', '>=', $amount)->first()->service_fee; 
+            ->where('max_amount', '>=', $amount)
+            ->first();
+
+        if ($fee === null) {
+            throw new ExpectedException("No transaction fee configured for provider {$telcoProvider} and amount {$amount}");
+        }
+
+        return (int) $fee->service_fee;
     }
 
     public function getProviderFee(int $amount, string $telcoProvider): int
     {
         Logger::info('Getting provider fee for amount: ' . $amount . ' and provider: ' . $telcoProvider);
-        return TransactionFee::where('provider', $telcoProvider)
+        $fee = TransactionFee::where('provider', $telcoProvider)
             ->where('transaction_type', TransactionTypeEnum::WITHDRAWAL->value)
             ->where('min_amount', '<=', $amount)
-            ->where('max_amount', '>=', $amount)->first()->provider_fee;
+            ->where('max_amount', '>=', $amount)
+            ->first();
+
+        if ($fee === null) {
+            throw new ExpectedException("No transaction fee configured for provider {$telcoProvider} and amount {$amount}");
+        }
+
+        return (int) $fee->provider_fee;
     }
 }

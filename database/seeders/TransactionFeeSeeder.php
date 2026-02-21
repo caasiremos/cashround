@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Enums\PaymentProvider;
+use App\Enums\TransactionTypeEnum;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -13,8 +15,8 @@ class TransactionFeeSeeder extends Seeder
      */
     public function run(): void
     {
-        $providers = ['MTN', 'Airtel'];
-        $transactionTypes = ['deposit', 'withdrawal'];
+        $providers = [PaymentProvider::MTN->value, PaymentProvider::AIRTEL->value];
+        $transactionTypes = [TransactionTypeEnum::DEPOSIT->value, TransactionTypeEnum::WITHDRAWAL->value];
 
         $feeTiers = [
             ['min_amount' => 0, 'max_amount' => 50_000, 'provider_fee' => 600],
@@ -32,7 +34,7 @@ class TransactionFeeSeeder extends Seeder
                         'min_amount' => $tier['min_amount'],
                         'max_amount' => $tier['max_amount'],
                         'provider_fee' => $tier['provider_fee'],
-                        'service_fee' => $tier['provider_fee'] * 2,
+                        'service_fee' => $tier['provider_fee'] + 500,
                         'transaction_type' => $transactionType,
                         'created_at' => now(),
                         'updated_at' => now(),
