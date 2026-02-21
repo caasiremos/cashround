@@ -9,6 +9,7 @@ use App\Models\Group;
 use App\Models\Member;
 use App\Models\MemberPasswordResetToken;
 use App\Models\Notification;
+use App\Models\Wallet;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -50,7 +51,11 @@ class MemberRepository
     {
         return DB::transaction(function () use ($data) {
             $member = Member::create($data);
-            $member->wallet()->create();
+            $member->wallet()->create([
+                'member_id' => $member->id,
+                'account_number' => 'CRM' . str_pad(Wallet::max('id') + 1, 5, '0', STR_PAD_LEFT),
+                'balance' => 0,
+            ]);
             $verificationCode = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
             $member->update([
                 'verification_code' => $verificationCode,

@@ -48,7 +48,7 @@ class MomoTransactionRepository
                     'telco_provider' => PhoneNumberUtil::provider($phoneNumber),
                     'wallet_id' => $wallet->id,
                     'internal_id' => $reference,
-                    'error_message' => null,
+                    'error_message' => $response['message'] ?? null,
                 ]);
 
                 return $transaction;
@@ -86,7 +86,7 @@ class MomoTransactionRepository
                     'telco_provider' => PhoneNumberUtil::provider($phoneNumber),
                     'wallet_id' => $wallet->id,
                     'internal_id' => $reference,
-                    'error_message' => null,
+                    'error_message' => $response['message'] ?? null,
                 ]);
 
                 return $transaction;

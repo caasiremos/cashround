@@ -22,15 +22,5 @@ class WalletRepository
     {
         return $group->wallet;
     }
-    
-    /**
-     * Create a new wallet
-     *
-     * @param array $data
-     * @return Wallet
-     */
-    public function createWallet(Member $member): Wallet
-    {
-        return $member->wallet()->create();
-    }
+
 }

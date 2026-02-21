@@ -23,6 +23,10 @@ class WalletSeeder extends Seeder
             'country' => 'Uganda',
             'password' => Hash::make('password'),
         ]);
-        $member->wallet()->create();
+        $member->wallet()->create([
+            'member_id' => $member->id,
+            'account_number' => 'CRR' . str_pad(Wallet::max('id') + 1, 5, '0', STR_PAD_LEFT),
+            'balance' => 0,
+        ]);
     }
 }

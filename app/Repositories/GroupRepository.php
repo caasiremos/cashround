@@ -85,7 +85,11 @@ class GroupRepository
      */
     public function createGroupWallet(Group $group): Wallet
     {
-        return $group->wallet()->create();
+        return $group->wallet()->create([
+            'group_id' => $group->id,
+            'account_number' => 'CRG' . str_pad(Wallet::max('id') + 1, 5, '0', STR_PAD_LEFT),
+            'balance' => 0,
+        ]);
     }
 
 
