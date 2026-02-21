@@ -77,7 +77,7 @@ class MomoTransactionRepository
         if($totalAmount > $wallet->balance){
             throw new ExpectedException('Insufficient balance');
         }
-        $response = MobileMoney::initiateDisbursement($reference, $phoneNumber, $amount);
+        $response = MobileMoney::initiateDisbursement($reference, $phoneNumber, $totalAmount);
         if ($response['success'] === true) {
             DB::transaction(function () use ($member, $wallet, $amount, $phoneNumber, $reference, $response, $serviceFee, $providerFee) {
                 $transaction = MomoTransaction::create([
