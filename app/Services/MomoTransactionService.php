@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Repositories\MomoTransactionRepository;
 use Illuminate\Database\Eloquent\Collection;
-
+use Illuminate\Http\Request;
 class MomoTransactionService
 {
     public function __construct(private MomoTransactionRepository $momoTransactionRepository) {}
@@ -48,5 +48,27 @@ class MomoTransactionService
     public function getMemberWalletTransactions(): Collection
     {
         return $this->momoTransactionRepository->getMemberWalletTransactions();
+    }
+
+    /**
+     * Relworx collection callback
+     *
+     * @param Request $request
+     * @return MomoTransaction
+     */
+    public function relworxCollectionCallback(Request $request)
+    {
+        $this->momoTransactionRepository->relworxCollectionCallback($request);
+    }
+
+    /**
+     * Relworx disbursement callback
+     *
+     * @param Request $request
+     * @return MomoTransaction
+     */
+    public function relworxDisbursementCallback(Request $request)
+    {
+        $this->momoTransactionRepository->relworxDisbursementCallback($request);
     }
 }

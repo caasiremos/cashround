@@ -66,3 +66,8 @@ Route::controller(OtpController::class)->middleware('auth:members')->group(funct
     Route::post('otp/generate', 'generateOtp');
     Route::post('otp/verify', 'verifyOtp');
 });
+
+Route::controller(MomoTransactionApiController::class)->group(function () {
+    Route::post('relworx/callback/collection', 'relworxCollectionCallback');
+    Route::post('relworx/callback/disbursement', 'relworxDisbursementCallback');
+});

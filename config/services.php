@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'relworx' => [
+        'api_key' => env('RELWOX_API_KEY'),
+        'business_account' => env('RELWOX_BUSINESS_ACCOUNT'),
+    ],
 ];

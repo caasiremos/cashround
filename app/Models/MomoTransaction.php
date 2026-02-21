@@ -20,6 +20,7 @@ class MomoTransaction extends Model
         'provider_fee',
         'service_fee',
         'internal_status',
+        'telco_provider',
         'internal_id',
         'external_status',
         'external_id',

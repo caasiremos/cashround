@@ -56,4 +56,28 @@ class MomoTransactionApiController extends Controller
         $transactions = $this->momoTransactionService->getMemberWalletTransactions();
         return new ApiSuccessResponse($transactions, 'Momo transactions fetched successfully');
     }
+
+    /**
+     * Relworx collection callback
+     *
+     * @param Request $request
+     * @return ApiSuccessResponse
+     */
+    public function relworxCollectionCallback(Request $request)
+    {
+        $collection = $this->momoTransactionService->relworxCollectionCallback($request);
+        return new ApiSuccessResponse($collection, 'Collection successful');
+    }
+
+    /**
+     * Relworx disbursement callback
+     *
+     * @param Request $request
+     * @return ApiSuccessResponse
+     */
+    public function relworxDisbursementCallback(Request $request)
+    {
+        $disbursement = $this->momoTransactionService->relworxDisbursementCallback($request);
+        return new ApiSuccessResponse($disbursement, 'Disbursement successful');
+    }
 }
