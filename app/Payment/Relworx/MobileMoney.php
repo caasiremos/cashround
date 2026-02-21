@@ -33,7 +33,7 @@ class MobileMoney
             [
                 'Accept' => 'application/vnd.relworx.v2',
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $this->apiKey
+                'Authorization' => 'Bearer ' . config('services.relworx.api_key')
             ],
         )->post(self::INITIATE_COLLECTION_URL, $params)->json();
         Logger::info('Relworx initiate collection response', $response);
