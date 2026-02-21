@@ -18,11 +18,10 @@ return new class extends Migration
             $table->string('transaction_type')->nullable();
             $table->string('phone_number');
             $table->decimal('amount', 19, 4);
-            $table->string('telco_provider')->nullable();
+            $table->string('telco_provider');
             $table->decimal('provider_fee', 19, 4)->default(0);
             $table->decimal('service_fee', 19, 4)->default(0);
             $table->string('internal_status');
-            $table->string('telco_provider')->nullable();
             $table->string('internal_id')->nullable();
             $table->string('external_status')->nullable();
             $table->string('external_id')->nullable();
