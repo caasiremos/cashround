@@ -23,4 +23,8 @@ Route::get('privacy', function () {
     return Inertia::render('Privacy');
 })->name('privacy');
 
+Route::get('member/account', function () {
+    return Inertia::render('member/Account');
+})->name('member.account');
+
 require __DIR__.'/settings.php';
