@@ -69,9 +69,8 @@ class GroupRepository
                 'description' => $data['description'] ?? null,
                 'slug' => Str::slug($data['name']) . '-' . Str::random(5),
             ]);
-            $group->members()->attach(auth()->user()->id);
+            $group->members()->attach(auth()->user()->id, ['rotation_position' => 0]);
             $this->createGroupWallet($group);
-            $group->members()->attach($group->owner_id, ['rotation_position' => 0]);
 
             return $group;
         });
