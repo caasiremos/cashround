@@ -234,6 +234,9 @@ class WalletTransactionRepository
             Wallet::where('id', $sourceWallet->id)->decrement('balance', $data['amount'] + WalletTransaction::MEMBER_TO_GROUP_FEE);
             Wallet::where('id', $destinationWallet->id)->increment('balance', $data['amount']);
 
+            $revenueWallet = Wallet::where('account_number', 'like', 'CRT%')->first();
+            $revenueWallet->increment('balance', WalletTransaction::MEMBER_TO_GROUP_FEE);
+
             return $transaction;
         });
     }
