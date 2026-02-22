@@ -290,7 +290,7 @@ class GroupRotationRepository
      */
     public function updateRotationOrder(Group $group, array $order): Group
     {
-        $groupMemberIds = $group->members()->pluck('id')->all();
+        $groupMemberIds = $group->members()->pluck('members.id')->all();
         $payloadMemberIds = array_column($order, 'member_id');
 
         sort($groupMemberIds);
