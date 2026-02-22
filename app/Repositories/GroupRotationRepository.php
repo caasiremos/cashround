@@ -290,14 +290,16 @@ class GroupRotationRepository
      */
     public function updateRotationOrder(Group $group, array $order): Group
     {
-        $groupMemberIds = array_map('intval', $group->members()->pluck('members.id')->all());
+        $groupMemberIds = array_map('intval', $group->members->pluck('id')->all());
         $payloadMemberIds = array_map('intval', array_column($order, 'member_id'));
 
         sort($groupMemberIds);
         sort($payloadMemberIds);
         if ($groupMemberIds !== $payloadMemberIds) {
+            $expected = implode(', ', $groupMemberIds);
+            $received = implode(', ', $payloadMemberIds);
             throw new \App\Exceptions\ExpectedException(
-                'Rotation order must include every group member exactly once (by member_id).'
+                "Rotation order must include every group member exactly once (by member_id). Expected member ids: [{$expected}], received: [{$received}]."
             );
         }
 

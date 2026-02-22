@@ -37,8 +37,16 @@ class GroupRotationApiController extends Controller
             $order = [];
         }
 
-        $validated = validator($order, [
-            '*.member_id' => ['required', 'integer'],
+        $normalized = array_map(function ($item) {
+            $item = is_array($item) ? $item : (array) $item;
+            return [
+                'member_id' => (int) ($item['member_id'] ?? $item['memberId'] ?? 0),
+                'rotation_position' => (int) ($item['rotation_position'] ?? $item['rotationPosition'] ?? 0),
+            ];
+        }, $order);
+
+        $validated = validator($normalized, [
+            '*.member_id' => ['required', 'integer', 'min:1'],
             '*.rotation_position' => ['required', 'integer', 'min:0'],
         ])->validate();
 
