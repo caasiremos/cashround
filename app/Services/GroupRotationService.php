@@ -69,4 +69,14 @@ class GroupRotationService
     {
         return $this->groupRotationRepository->rescheduleCurrentRecipientToEndOfRound($group);
     }
+
+    /**
+     * Update rotation order from client payload (array of member_id + rotation_position).
+     *
+     * @param  array<int, array{member_id: int, rotation_position: int}>  $order
+     */
+    public function updateRotationOrder(Group $group, array $order): Group
+    {
+        return $this->groupRotationRepository->updateRotationOrder($group, $order);
+    }
 }

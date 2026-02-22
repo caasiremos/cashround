@@ -25,6 +25,33 @@ class GroupRotationApiController extends Controller
     }
 
     /**
+     * Set rotation order from client payload.
+     * Body: [ {"member_id": 1, "rotation_position": 1}, {"member_id": 2, "rotation_position": 2}, ... ]
+     * Or: { "members": [ ... ] }
+     * Must include every group member exactly once.
+     */
+    public function updateRotationOrder(Request $request, Group $group): ApiSuccessResponse
+    {
+        $order = $request->input('members', $request->all());
+        if (! is_array($order)) {
+            $order = [];
+        }
+
+        $validated = validator($order, [
+            '*.member_id' => ['required', 'integer'],
+            '*.rotation_position' => ['required', 'integer', 'min:0'],
+        ])->validate();
+
+        $this->groupRotationService->updateRotationOrder($group, array_values($validated));
+        $group->refresh();
+
+        return new ApiSuccessResponse(
+            $this->buildRotationData($group),
+            'Rotation order updated successfully'
+        );
+    }
+
+    /**
      * Reschedule the current recipient to the end of the round (use when their cashround date has passed without payment).
      */
     public function rescheduleCurrentRecipient(Group $group): ApiSuccessResponse

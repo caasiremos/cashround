@@ -280,4 +280,37 @@ class GroupRotationRepository
 
         return $group->fresh();
     }
+
+    /**
+     * Update rotation order from client payload.
+     * Each item must have member_id and rotation_position; all group members must be included exactly once.
+     *
+     * @param  array<int, array{member_id: int, rotation_position: int}>  $order
+     * @return Group
+     */
+    public function updateRotationOrder(Group $group, array $order): Group
+    {
+        $groupMemberIds = $group->members()->pluck('id')->all();
+        $payloadMemberIds = array_column($order, 'member_id');
+
+        sort($groupMemberIds);
+        sort($payloadMemberIds);
+        if ($groupMemberIds !== $payloadMemberIds) {
+            throw new \App\Exceptions\ExpectedException(
+                'Rotation order must include every group member exactly once (by member_id).'
+            );
+        }
+
+        foreach ($order as $item) {
+            $memberId = (int) $item['member_id'];
+            $position = (int) $item['rotation_position'];
+
+            DB::table('group_member')
+                ->where('group_id', $group->id)
+                ->where('member_id', $memberId)
+                ->update(['rotation_position' => $position]);
+        }
+
+        return $group->fresh();
+    }
 }

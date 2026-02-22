@@ -27,9 +27,9 @@ class MemberLoginService
             throw new ExpectedException('Invalid credentials');
         }
 
-        // if (!$member->hasVerifiedEmail()) {
-        //     throw new ExpectedException('Please verify your email address before logging in.');
-        // }
+        if (!$member->hasVerifiedEmail()) {
+            throw new ExpectedException('Please verify your email address before logging in.');
+        }
 
         $token = $member->createToken('auth_token')->plainTextToken;
 
