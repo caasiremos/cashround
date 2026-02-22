@@ -11,6 +11,10 @@ Route::get('register', function () {
     return redirect()->route('login');
 })->name('register');
 
+Route::post('register', function () {
+    return redirect()->route('login');
+})->name('register.store');
+
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
