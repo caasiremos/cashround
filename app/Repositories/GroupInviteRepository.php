@@ -22,7 +22,7 @@ class GroupInviteRepository
                 'group_id' => $data['group_id'],
                 'member_id' => auth()->user()->id
             ],
-            ['invite_code' => $data['invite_code'], 'expires_at' => now()->addMinutes(5)]
+            ['invite_code' => $data['invite_code'], 'expires_at' => now()->addYears(5)]
         );
         return $groupInvite;
     }
