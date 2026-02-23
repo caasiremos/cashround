@@ -1,0 +1,58 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Mail\ContributionReminderMail;
+use App\Services\ContributionDueReminderService;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
+
+class ContributionEmailReminderCommand extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'contribution:email-reminder';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Send email reminders to members whose group contributions are due (daily at midday; weekly/monthly on first and last day of period)';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle(ContributionDueReminderService $reminderService): int
+    {
+        $items = $reminderService->getGroupsAndMembersDueForReminderToday();
+        $sent = 0;
+
+        foreach ($items as $item) {
+            $group = $item['group'];
+            $dueDate = $item['due_date'];
+            $isLastDay = $item['is_last_day'];
+
+            foreach ($item['members'] as $member) {
+                if (empty($member->email)) {
+                    continue;
+                }
+
+                Mail::to($member->email)->send(new ContributionReminderMail(
+                    $group,
+                    $dueDate,
+                    $isLastDay,
+                    $member->first_name ?? '',
+                ));
+                $sent++;
+            }
+        }
+
+        $this->info("Sent {$sent} contribution reminder email(s).");
+
+        return self::SUCCESS;
+    }
+}
