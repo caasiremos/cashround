@@ -91,8 +91,6 @@ class GroupRotationApiController extends Controller
         $current = $state['current_member'];
         $next = $state['next_member'];
 
-        $memberId = (int) auth('members')->id();
-
         return [
             'current_member' => $current ? [
                 'id' => $current->id,
@@ -111,8 +109,7 @@ class GroupRotationApiController extends Controller
             'completed_circles' => $state['completed_circles'],
             'circle_complete' => $state['completed_circles'] > 0,
             'current_recipient_date_passed' => $this->groupRotationService->hasCurrentRecipientDatePassed($group),
-            'has_contributed_in_current_rotation' => $this->walletTransactionRepository->hasMemberContributedInCurrentRotation($group, $memberId),
-            'members_in_order' => array_map(function ($entry) {
+            'members_in_order' => array_map(function ($entry) use ($group) {
                 $m = $entry['member'];
                 return [
                     'id' => $m->id,
@@ -121,6 +118,7 @@ class GroupRotationApiController extends Controller
                     'email' => $m->email,
                     'rotation_position' => (int) $m->pivot->rotation_position,
                     'scheduled_cashround_date' => $entry['scheduled_cashround_date'],
+                    'has_contributed_in_current_rotation' => $this->walletTransactionRepository->hasMemberContributedInCurrentRotation($group, (int) $m->id),
                 ];
             }, $state['members_with_dates']),
         ];
