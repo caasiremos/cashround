@@ -5,6 +5,7 @@ use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use App\Http\Responses\ApiErrorResponse;
+use App\Utils\Logger;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $exceptions->render(function (Throwable $e, $request) {
-            return (new ApiErrorResponse($e->getMessage(), $e, null, Response::HTTP_INTERNAL_SERVER_ERROR))->toResponse($request);
+            Logger::error($e);
+            return (new ApiErrorResponse("Something went wrong on our side. Please try again later.", $e, null, Response::HTTP_INTERNAL_SERVER_ERROR))->toResponse($request);
         });
     })->create();
