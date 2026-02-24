@@ -118,7 +118,7 @@ class GroupRotationApiController extends Controller
                     'email' => $m->email,
                     'rotation_position' => (int) $m->pivot->rotation_position,
                     'scheduled_cashround_date' => $entry['scheduled_cashround_date'],
-                    'has_contributed_in_current_rotation' => $this->walletTransactionRepository->hasMemberContributedInCurrentRotation($group, (int) $m->id),
+                    'has_contributed_in_current_rotation' => $this->walletTransactionRepository->hasMemberContributedInCurrentPayoutCycle($group, (int) $m->id),
                 ];
             }, $state['members_with_dates']),
         ];

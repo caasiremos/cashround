@@ -257,11 +257,47 @@ class WalletTransactionRepository
 
     /**
      * Whether the given member has contributed (member-to-group) in the current rotation period.
-     * Used by rotation API to expose has_contributed_in_current_rotation to the client.
+     * Used for duplicate-deposit validation (calendar period: same day/week/month by frequency).
      */
     public function hasMemberContributedInCurrentRotation(Group $group, int $memberId): bool
     {
         return $this->hasMemberAlreadyContributedThisRotation((int) $group->id, $memberId);
+    }
+
+    /**
+     * Whether the given member has contributed in the current payout cycle (since last group-to-member payout).
+     * Used by rotation API so the flag matches the "circle" and is not dependent on calendar/timezone.
+     * Includes contributions where destination is the group wallet (handles null group_id on older rows).
+     */
+    public function hasMemberContributedInCurrentPayoutCycle(Group $group, int $memberId): bool
+    {
+        $groupId = (int) $group->id;
+        $groupWalletId = $group->wallet?->id;
+
+        $rotationStartedAt = WalletTransaction::query()
+            ->where('group_id', $groupId)
+            ->where('transaction_type', TransactionTypeEnum::GROUP_TO_MEMBER->value)
+            ->where('status', WalletTransaction::STATUS_SUCCESSFUL)
+            ->orderByDesc('created_at')
+            ->value('created_at');
+
+        if ($rotationStartedAt === null) {
+            $rotationStartedAt = $group->created_at ?? now()->subYears(10);
+        }
+
+        $query = WalletTransaction::query()
+            ->where('member_id', $memberId)
+            ->where('transaction_type', TransactionTypeEnum::MEMBER_TO_GROUP->value)
+            ->where('created_at', '>=', $rotationStartedAt);
+
+        $query->where(function ($q) use ($groupId, $groupWalletId) {
+            $q->where('group_id', $groupId);
+            if ($groupWalletId !== null) {
+                $q->orWhere('destination_wallet_id', $groupWalletId);
+            }
+        });
+
+        return $query->exists();
     }
 
     /**
