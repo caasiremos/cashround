@@ -2,8 +2,11 @@
 
 namespace App\Repositories;
 
+use App\Enums\TransactionTypeEnum;
+use App\Exceptions\ExpectedException;
 use App\Models\Group;
 use App\Models\Member;
+use App\Models\WalletTransaction;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -290,6 +293,12 @@ class GroupRotationRepository
      */
     public function updateRotationOrder(Group $group, array $order): Group
     {
+        if ($this->isRotationOrderUpdateBlocked($group)) {
+            throw new ExpectedException(
+                'You cannot update rotation order until the group circle is done.'
+            );
+        }
+
         $groupMemberIds = array_values(array_unique(array_map('intval', $group->members->pluck('id')->all())));
         $payloadMemberIds = array_map('intval', array_column($order, 'member_id'));
 
@@ -298,7 +307,7 @@ class GroupRotationRepository
         if ($groupMemberIds !== $payloadMemberIds) {
             $expected = implode(', ', $groupMemberIds);
             $received = implode(', ', $payloadMemberIds);
-            throw new \App\Exceptions\ExpectedException(
+            throw new ExpectedException(
                 "Rotation order must include every group member exactly once (by member_id). Expected member ids: [{$expected}], received: [{$received}]."
             );
         }
@@ -314,5 +323,30 @@ class GroupRotationRepository
         }
 
         return $group->fresh();
+    }
+
+    /**
+     * Whether updating rotation order is blocked (current circle is not yet complete).
+     * Order can be updated only when: no group-to-member payout has happened yet, or a full circle
+     * is done (number of successful group-to-member payouts is a multiple of member count).
+     */
+    public function isRotationOrderUpdateBlocked(Group $group): bool
+    {
+        $memberCount = $group->members->count();
+        if ($memberCount === 0) {
+            return false;
+        }
+
+        $groupToMemberCount = WalletTransaction::query()
+            ->where('group_id', $group->id)
+            ->where('transaction_type', TransactionTypeEnum::GROUP_TO_MEMBER->value)
+            ->where('status', WalletTransaction::STATUS_SUCCESSFUL)
+            ->count();
+
+        if ($groupToMemberCount === 0) {
+            return false;
+        }
+
+        return ($groupToMemberCount % $memberCount) !== 0;
     }
 }
