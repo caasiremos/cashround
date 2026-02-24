@@ -262,7 +262,12 @@ class WalletTransactionRepository
      */
     public function getGroupWalletTransactions(int $groupId): Collection
     {
-        return WalletTransaction::where('group_id', $groupId)->orderBy('created_at', 'DESC')->limit(10)->get();
+        return WalletTransaction::query()
+            ->with('member')
+            ->where('group_id', $groupId)
+            ->orderBy('created_at', 'DESC')
+            ->limit(20)
+            ->get();
     }
 
     /**
@@ -270,6 +275,11 @@ class WalletTransactionRepository
      */
     public function getMemberWalletTransactions(array $data): Collection
     {
-        return WalletTransaction::where('member_id', auth()->user()->id)->get();
+        return WalletTransaction::query()
+            ->with('member')
+            ->where('member_id', auth()->user()->id)
+            ->orderBy('created_at', 'DESC')
+            ->limit(10)
+            ->get();
     }
 }

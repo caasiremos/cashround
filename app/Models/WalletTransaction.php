@@ -25,6 +25,15 @@ class WalletTransaction extends Model
         'status',
         'transaction_id',
     ];
+    public function member()
+    {
+        return $this->belongsTo(Member::class);
+    }
+    
+    public function group()
+    {
+        return $this->belongsTo(Group::class);
+    }
 
     public function sourceWallet()
     {
