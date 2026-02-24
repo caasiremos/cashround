@@ -226,7 +226,7 @@ class WalletTransactionRepository
                 'group_id' => $destinationWallet->group_id,
                 'transaction_type' => TransactionTypeEnum::MEMBER_TO_GROUP->value,
                 'amount' => $data['amount'],
-                'service_fee' => 0,
+                'service_fee' => WalletTransaction::MEMBER_TO_GROUP_FEE,
                 'status' => WalletTransaction::STATUS_PENDING,
                 'transaction_id' => Str::uuid()->toString(),
             ]);
