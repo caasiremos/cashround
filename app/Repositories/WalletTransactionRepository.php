@@ -222,8 +222,11 @@ class WalletTransactionRepository
         if ($sourceWallet->balance < $data['amount'] + WalletTransaction::MEMBER_TO_GROUP_FEE) {
             throw new ExpectedException('Insufficient balance');
         }
-
         $groupId = (int) $destinationWallet->group_id;
+        $group = Group::find($groupId);
+        if($group->amount !== $data['amount']) {
+            throw new ExpectedException('Amount is not correct, the amount should be ' . $group->amount . ' for this group');
+        }
         if ($this->hasMemberAlreadyContributedThisRotation($groupId, (int) $member->id)) {
             throw new ExpectedException('You have already contributed for this rotation. You can contribute again when the next rotation starts.');
         }
