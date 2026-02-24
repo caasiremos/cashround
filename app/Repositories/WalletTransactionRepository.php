@@ -10,6 +10,7 @@ use App\Models\Member;
 use App\Models\TransactionAuth;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
+use App\Jobs\NotifyGroupContributionMadeJob;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -232,7 +233,7 @@ class WalletTransactionRepository
             throw new ExpectedException('You have already contributed for this rotation. You can contribute again when the next rotation starts.');
         }
 
-        return DB::transaction(function () use ($sourceWallet, $destinationWallet, $data) {
+        return DB::transaction(function () use ($sourceWallet, $destinationWallet, $data, $member) {
             $transaction = WalletTransaction::create([
                 'source_wallet_id' => $sourceWallet->id,
                 'destination_wallet_id' => $destinationWallet->id,
@@ -250,6 +251,11 @@ class WalletTransactionRepository
 
             $revenueWallet = Wallet::where('account_number', 'like', 'CRT%')->first();
             $revenueWallet->increment('balance', WalletTransaction::calculateServiceFee((float)$data['amount']));
+
+            NotifyGroupContributionMadeJob::dispatch(
+                (int) $destinationWallet->group_id,
+                (int) $member->id
+            );
 
             return $transaction;
         });

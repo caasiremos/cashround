@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Mail\ContributionReminderMail;
+use App\Notifications\FcmNotification;
 use App\Services\ContributionDueReminderService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
@@ -47,6 +48,21 @@ class ContributionEmailReminderCommand extends Command
                     $isLastDay,
                     $member->first_name ?? '',
                 ));
+
+                if (! empty($member->fcm_token)) {
+                    $title = $isLastDay
+                        ? 'Contribution due today'
+                        : 'Contribution period started';
+                    $body = $isLastDay
+                        ? "Your contribution for {$group->name} is due today."
+                        : "Contribution period for {$group->name} has started. Amount due: " . number_format($group->amount) . '.';
+                    $member->notify(new FcmNotification([
+                        'title' => $title . ' - ' . $group->name,
+                        'body' => $body,
+                        'data' => ['group_id' => (string) $group->id, 'type' => 'contribution_reminder'],
+                    ]));
+                }
+
                 $sent++;
             }
         }
