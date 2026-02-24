@@ -201,11 +201,13 @@ class WalletTransactionRepository
     }
 
     /**
-     * Create a new wallet transaction for a member-to-group transfer
+     * Create a new wallet transaction for a member-to-group transfer.
+     * Prevents duplicate contributions: a member may only contribute once per rotation.
      */
     public function memberToGroup(array $data): WalletTransaction
     {
-        $sourceWallet = auth('members')->user()->wallet;
+        $member = auth('members')->user();
+        $sourceWallet = $member->wallet;
         $destinationWallet = Wallet::query()->where('account_number', $data['account_number'])->first();
         if (! $destinationWallet) {
             throw new ExpectedException('Account number not found');
@@ -216,6 +218,11 @@ class WalletTransactionRepository
 
         if ($sourceWallet->balance < $data['amount'] + WalletTransaction::MEMBER_TO_GROUP_FEE) {
             throw new ExpectedException('Insufficient balance');
+        }
+
+        $groupId = (int) $destinationWallet->group_id;
+        if ($this->hasMemberAlreadyContributedThisRotation($groupId, (int) $member->id)) {
+            throw new ExpectedException('You have already contributed for this rotation. You can contribute again when the next rotation starts.');
         }
 
         return DB::transaction(function () use ($sourceWallet, $destinationWallet, $data) {
@@ -239,6 +246,44 @@ class WalletTransactionRepository
 
             return $transaction;
         });
+    }
+
+    /**
+     * Whether the member has already made a member-to-group contribution in the current rotation.
+     * "Current rotation" = the current time period based on the group's frequency (e.g. same day for daily, same week for weekly).
+     */
+    private function hasMemberAlreadyContributedThisRotation(int $groupId, int $memberId): bool
+    {
+        $group = Group::find($groupId);
+        if (! $group) {
+            return false;
+        }
+
+        $periodStart = $this->getCurrentRotationPeriodStart($group);
+
+        return WalletTransaction::query()
+            ->where('group_id', $groupId)
+            ->where('member_id', $memberId)
+            ->where('transaction_type', TransactionTypeEnum::MEMBER_TO_GROUP->value)
+            ->where('created_at', '>=', $periodStart)
+            ->exists();
+    }
+
+    /**
+     * Start of the current rotation period based on group frequency (daily = today, weekly = this week, etc.).
+     */
+    private function getCurrentRotationPeriodStart(Group $group): \DateTimeInterface
+    {
+        $now = now();
+        $frequency = strtolower((string) ($group->frequency ?? 'monthly'));
+
+        return match ($frequency) {
+            'daily' => $now->copy()->startOfDay(),
+            'weekly' => $now->copy()->startOfWeek(),
+            'monthly' => $now->copy()->startOfMonth(),
+            'yearly' => $now->copy()->startOfYear(),
+            default => $now->copy()->startOfMonth(),
+        };
     }
 
     /**
