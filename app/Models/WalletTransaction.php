@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class WalletTransaction extends Model
 {
-    public CONST MEMBER_TO_GROUP_FEE = 150;
-    public CONST MEMBER_TO_MEMBER_FEE = 1000;
     public CONST STATUS_PENDING = 'pending';
     public CONST STATUS_SUCCESSFUL = 'successful';
     public CONST STATUS_FAILED = 'failed';
@@ -43,5 +41,10 @@ class WalletTransaction extends Model
     public function destinationWallet()
     {
         return $this->belongsTo(Wallet::class, 'destination_wallet_id');
+    }
+
+    public static function calculateServiceFee(float $amount): float
+    {
+        return $amount * 0.01;
     }
 }

@@ -49,14 +49,15 @@ class WalletTransactionRepository
                 'member_id' => auth('members')->user()->id,
                 'transaction_type' => TransactionTypeEnum::MEMBER_TO_MEMBER->value,
                 'amount' => $data['amount'],
-                'service_fee' => WalletTransaction::MEMBER_TO_MEMBER_FEE,
+                'service_fee' => WalletTransaction::calculateServiceFee((float)$data['amount']),
                 'status' => WalletTransaction::STATUS_SUCCESSFUL,
                 'transaction_id' => Str::uuid()->toString(),
             ]);
 
-            Wallet::where('id', $sourceWallet->id)->decrement('balance', $data['amount'] + WalletTransaction::MEMBER_TO_MEMBER_FEE);
+            Wallet::where('id', $sourceWallet->id)->decrement('balance', $data['amount'] + WalletTransaction::calculateServiceFee((float)$data['amount']));
             Wallet::where('id', $destinationWallet->id)->increment('balance', $data['amount']);
-
+            $revenueWallet = Wallet::where('account_number', 'like', 'CRT%')->first();
+            $revenueWallet->increment('balance', WalletTransaction::calculateServiceFee((float)$data['amount']));
             return $transaction;
         });
     }
@@ -224,7 +225,7 @@ class WalletTransactionRepository
         }
         $groupId = (int) $destinationWallet->group_id;
         $group = Group::find($groupId);
-        if($group->amount !== $data['amount']) {
+        if(intval($group->amount) !== intval($data['amount'])) {
             throw new ExpectedException('Amount is not correct, the amount should be ' . $group->amount . ' for this group');
         }
         if ($this->hasMemberAlreadyContributedThisRotation($groupId, (int) $member->id)) {
@@ -244,11 +245,11 @@ class WalletTransactionRepository
                 'transaction_id' => Str::uuid()->toString(),
             ]);
 
-            Wallet::where('id', $sourceWallet->id)->decrement('balance', $data['amount'] + WalletTransaction::MEMBER_TO_GROUP_FEE);
+            Wallet::where('id', $sourceWallet->id)->decrement('balance', $data['amount'] + WalletTransaction::calculateServiceFee((float)$data['amount']));
             Wallet::where('id', $destinationWallet->id)->increment('balance', $data['amount']);
 
             $revenueWallet = Wallet::where('account_number', 'like', 'CRT%')->first();
-            $revenueWallet->increment('balance', WalletTransaction::MEMBER_TO_GROUP_FEE);
+            $revenueWallet->increment('balance', WalletTransaction::calculateServiceFee((float)$data['amount']));
 
             return $transaction;
         });
