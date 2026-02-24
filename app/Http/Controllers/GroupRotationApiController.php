@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Responses\ApiSuccessResponse;
 use App\Models\Group;
+use App\Repositories\WalletTransactionRepository;
 use App\Services\GroupRotationService;
 use Illuminate\Http\Request;
 
@@ -11,6 +12,7 @@ class GroupRotationApiController extends Controller
 {
     public function __construct(
         private GroupRotationService $groupRotationService,
+        private WalletTransactionRepository $walletTransactionRepository,
     ) {
     }
 
@@ -89,6 +91,8 @@ class GroupRotationApiController extends Controller
         $current = $state['current_member'];
         $next = $state['next_member'];
 
+        $memberId = (int) auth('members')->id();
+
         return [
             'current_member' => $current ? [
                 'id' => $current->id,
@@ -107,6 +111,7 @@ class GroupRotationApiController extends Controller
             'completed_circles' => $state['completed_circles'],
             'circle_complete' => $state['completed_circles'] > 0,
             'current_recipient_date_passed' => $this->groupRotationService->hasCurrentRecipientDatePassed($group),
+            'has_contributed_in_current_rotation' => $this->walletTransactionRepository->hasMemberContributedInCurrentRotation($group, $memberId),
             'members_in_order' => array_map(function ($entry) {
                 $m = $entry['member'];
                 return [

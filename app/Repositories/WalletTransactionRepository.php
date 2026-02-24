@@ -252,6 +252,15 @@ class WalletTransactionRepository
     }
 
     /**
+     * Whether the given member has contributed (member-to-group) in the current rotation period.
+     * Used by rotation API to expose has_contributed_in_current_rotation to the client.
+     */
+    public function hasMemberContributedInCurrentRotation(Group $group, int $memberId): bool
+    {
+        return $this->hasMemberAlreadyContributedThisRotation((int) $group->id, $memberId);
+    }
+
+    /**
      * Whether the member has already made a member-to-group contribution in the current rotation.
      * "Current rotation" = the current time period based on the group's frequency (e.g. same day for daily, same week for weekly).
      */
