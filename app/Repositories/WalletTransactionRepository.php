@@ -168,6 +168,9 @@ class WalletTransactionRepository
                 $wt->update(['status' => 'successful']);
 
                 $this->advanceRotationIfCurrentRecipient($wt);
+                // increment the completed circles count
+                $group = Group::find($wt->group_id);
+                $group->increment('completed_circles');
             });
         }
 

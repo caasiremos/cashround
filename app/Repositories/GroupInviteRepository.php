@@ -2,9 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Exceptions\ExpectedException;
 use App\Models\Group;
 use App\Models\GroupInvite;
-use App\Services\GroupRotationService;
 use Illuminate\Support\Facades\DB;
 
 class GroupInviteRepository
@@ -35,6 +35,14 @@ class GroupInviteRepository
      */
     public function acceptInvite(GroupInvite $groupInvite): Group
     {
+        $group = $groupInvite->group;
+
+        if ((new GroupRotationRepository())->isRotationOrderUpdateBlocked($group)) {
+            throw new ExpectedException(
+                'You cannot join the group until the current group circle is done.'
+            );
+        }
+
         return DB::transaction(function () use ($groupInvite) {
             $memberId = auth()->user()->id;
 
