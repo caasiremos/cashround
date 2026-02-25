@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Enums\TransactionTypeEnum;
 use App\Exceptions\ExpectedException;
+use App\Jobs\NotifiyMemberTransferMadeJob;
 use App\Models\Group;
 use App\Models\GroupRole;
 use App\Models\Member;
@@ -39,7 +40,7 @@ class WalletTransactionRepository
             throw new ExpectedException('You cannot transfer money to yourself');
         }
 
-        if ($sourceWallet->balance < $data['amount'] + WalletTransaction::MEMBER_TO_MEMBER_FEE) {
+        if ($sourceWallet->balance < $data['amount'] + WalletTransaction::calculateServiceFee((float)$data['amount'])) {
             throw new ExpectedException('Insufficient balance');
         }
 
@@ -59,6 +60,13 @@ class WalletTransactionRepository
             Wallet::where('id', $destinationWallet->id)->increment('balance', $data['amount']);
             $revenueWallet = Wallet::where('account_number', 'like', 'CRT%')->first();
             $revenueWallet->increment('balance', WalletTransaction::calculateServiceFee((float)$data['amount']));
+
+            NotifiyMemberTransferMadeJob::dispatch(
+                (int) $sourceWallet->member_id,
+                (int) $destinationWallet->member_id,
+                (float) $data['amount']
+            );
+
             return $transaction;
         });
     }
@@ -241,7 +249,7 @@ class WalletTransactionRepository
                 'group_id' => $destinationWallet->group_id,
                 'transaction_type' => TransactionTypeEnum::MEMBER_TO_GROUP->value,
                 'amount' => $data['amount'],
-                'service_fee' => WalletTransaction::MEMBER_TO_GROUP_FEE,
+                'service_fee' => WalletTransaction::calculateServiceFee((float)$data['amount']),
                 'status' => WalletTransaction::STATUS_PENDING,
                 'transaction_id' => Str::uuid()->toString(),
             ]);
