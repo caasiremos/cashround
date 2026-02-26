@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Otp extends Model
 {
     protected $fillable = [
+        'member_id',
         'phone_number',
         'code',
         'matched',

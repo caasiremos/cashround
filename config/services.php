@@ -40,8 +40,8 @@ return [
         'business_account' => env('RELWOX_BUSINESS_ACCOUNT'),
     ],
 
-    'africastalking' => [
-        'username' => env('AFRICASTALKING_USERNAME'),
-        'api_key' => env('AFRICASTALKING_API_KEY'),
+    'marze' => [
+        'api_key' => env('MARZE_API_KEY'),
+        'api_secret' => env('MARZE_API_SECRET'),
     ],
 ];

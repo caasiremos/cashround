@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\ExpectedException;
+use App\Http\Requests\OtpRequest;
 use App\Http\Responses\ApiSuccessResponse;
 use App\Services\OtpService;
 use Illuminate\Http\Request;
@@ -33,12 +34,8 @@ class OtpController extends Controller
      * @return bool
      * @throws ExpectedException
      */
-    public function verifyOtp(Request $request)
+    public function verifyOtp(OtpRequest $request)
     {
-        $request->validate([
-            'phone_number' => 'required|string|max:255|exists:otps,phone_number',
-            'code' => 'required|string|max:255|exists:otps,code',
-        ]);
         $verified = $this->otpService->verifyOtp($request);
         return new ApiSuccessResponse($verified, 'OTP verified successfully');
     }
