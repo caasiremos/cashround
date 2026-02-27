@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Mail\ContributionReminderMail;
 use App\Notifications\FcmNotification;
 use App\Services\ContributionDueReminderService;
+use App\Utils\SMS;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
 
@@ -42,12 +43,13 @@ class ContributionEmailReminderCommand extends Command
                     continue;
                 }
 
-                Mail::to($member->email)->send(new ContributionReminderMail(
-                    $group,
-                    $dueDate,
-                    $isLastDay,
-                    $member->first_name ?? '',
-                ));
+                // Mail::to($member->email)->send(new ContributionReminderMail(
+                //     $group,
+                //     $dueDate,
+                //     $isLastDay,
+                //     $member->first_name ?? '',
+                // ));
+                SMS::send($member->phone_number, 'Hello '. $member->first_name . ', Your contribution for '.$group->name.' is due today.');
 
                 if (! empty($member->fcm_token)) {
                     $title = $isLastDay

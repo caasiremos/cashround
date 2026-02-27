@@ -27,6 +27,5 @@ class ScheduleSmsReminderCommand extends Command
     public function handle()
     {
         $response = SMS::send('+256786966244', 'Hello, this is a test SMS');
-        dd($response);
     }
 }

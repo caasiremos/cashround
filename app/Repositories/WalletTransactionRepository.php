@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Enums\TransactionTypeEnum;
 use App\Exceptions\ExpectedException;
 use App\Jobs\NotifiyMemberTransferMadeJob;
+use App\Jobs\NotifyMemberCashroundReceivedJob;
 use App\Models\Group;
 use App\Models\GroupRole;
 use App\Models\Member;
@@ -181,6 +182,11 @@ class WalletTransactionRepository
                 // increment the completed circles count
                 $group = Group::find($wt->group_id);
                 $group->increment('completed_circles');
+
+                NotifyMemberCashroundReceivedJob::dispatch(
+                    (int) $wt->group_id,
+                    (int) $wt->member_id
+                );
             });
         }
 
