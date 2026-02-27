@@ -6,6 +6,7 @@ use App\Enums\TransactionTypeEnum;
 use App\Exceptions\ExpectedException;
 use App\Jobs\NotifiyMemberTransferMadeJob;
 use App\Jobs\NotifyMemberCashroundReceivedJob;
+use App\Jobs\NotifyPayoutInitiatedJob;
 use App\Models\Group;
 use App\Models\GroupRole;
 use App\Models\Member;
@@ -117,7 +118,13 @@ class WalletTransactionRepository
                 'has_secretary_approved' => false,
                 'status' => 'pending',
             ]);
+
+            NotifyPayoutInitiatedJob::dispatch(
+                (int) $sourceWallet->group_id,
+                (int) $data['member_id']
+            );
         }
+
 
         return $transaction;
     }
