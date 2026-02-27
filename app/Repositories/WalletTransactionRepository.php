@@ -235,7 +235,7 @@ class WalletTransactionRepository
             throw new ExpectedException('You cannot transfer money to yourself');
         }
 
-        if ($sourceWallet->balance < $data['amount'] + WalletTransaction::MEMBER_TO_GROUP_FEE) {
+        if ($sourceWallet->balance < $data['amount'] + WalletTransaction::calculateServiceFee((float)$data['amount'])) {
             throw new ExpectedException('Insufficient balance');
         }
         $groupId = (int) $destinationWallet->group_id;
