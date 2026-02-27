@@ -7,6 +7,7 @@ use App\Exceptions\ExpectedException;
 use App\Jobs\NotifiyMemberTransferMadeJob;
 use App\Jobs\NotifyMemberCashroundReceivedJob;
 use App\Jobs\NotifyPayoutInitiatedJob;
+use App\Jobs\NotifyPayoutApprovalByRoleJob;
 use App\Models\Group;
 use App\Models\GroupRole;
 use App\Models\Member;
@@ -157,6 +158,10 @@ class WalletTransactionRepository
         };
 
         $transactionAuth->update($updateData);
+        NotifyPayoutApprovalByRoleJob::dispatch(
+            (int) $data['group_id'],
+            (string) $role
+        );
 
         $requiredRoles = [GroupRole::CHAIRPERSON, GroupRole::TREASURER, GroupRole::SECRETARY];
         $existingApprovalRoles = GroupRole::where('group_id', $data['group_id'])
@@ -196,7 +201,6 @@ class WalletTransactionRepository
                 );
             });
         }
-
         return $transactionAuth->fresh();
     }
 
@@ -247,7 +251,7 @@ class WalletTransactionRepository
         }
         $groupId = (int) $destinationWallet->group_id;
         $group = Group::find($groupId);
-        if(intval($group->amount) !== intval($data['amount'])) {
+        if (intval($group->amount) !== intval($data['amount'])) {
             throw new ExpectedException('Amount is not correct, the amount should be ' . $group->amount . ' for this group');
         }
         if ($this->hasMemberAlreadyContributedThisRotation($groupId, (int) $member->id)) {
