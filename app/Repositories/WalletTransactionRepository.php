@@ -191,9 +191,19 @@ class WalletTransactionRepository
                 $wt->update(['status' => 'successful']);
 
                 $this->advanceRotationIfCurrentRecipient($wt);
-                // increment the completed circles count
-                $group = Group::find($wt->group_id);
-                $group->increment('completed_circles');
+                // Mark a circle complete only when all members have received payout.
+                $group = Group::withCount('members')->find($wt->group_id);
+                if ($group && (int) $group->members_count > 0) {
+                    $successfulPayoutsCount = WalletTransaction::query()
+                        ->where('group_id', $group->id)
+                        ->where('transaction_type', TransactionTypeEnum::GROUP_TO_MEMBER->value)
+                        ->where('status', WalletTransaction::STATUS_SUCCESSFUL)
+                        ->count();
+                    $expectedCompletedCircles = intdiv($successfulPayoutsCount, (int) $group->members_count);
+                    if ((int) $group->completed_circles < $expectedCompletedCircles) {
+                        $group->update(['completed_circles' => $expectedCompletedCircles]);
+                    }
+                }
 
                 NotifyMemberCashroundReceivedJob::dispatch(
                     (int) $wt->group_id,
