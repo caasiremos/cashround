@@ -268,6 +268,12 @@ class WalletTransactionRepository
             throw new ExpectedException('You have already contributed for this rotation. You can contribute again when the next rotation starts.');
         }
 
+        // Prevent repeat contributions across frequency boundaries until payout closes the cycle.
+        if ($this->hasMemberContributedInCurrentPayoutCycle($group, (int) $member->id)) {
+            throw new ExpectedException('You have already contributed in the current payout cycle. You can contribute again after a payout is made for this group.');
+        }
+
+
         return DB::transaction(function () use ($sourceWallet, $destinationWallet, $data, $member) {
             $transaction = WalletTransaction::create([
                 'source_wallet_id' => $sourceWallet->id,
