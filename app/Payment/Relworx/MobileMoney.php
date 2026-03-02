@@ -2,6 +2,8 @@
 
 namespace App\Payment\Relworx;
 
+use App\Enums\TransactionTypeEnum;
+use App\Models\MomoTransaction;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
 use App\Utils\Logger;
@@ -63,31 +65,27 @@ class MobileMoney
         return $response;
     }
 
-    public function getTransactionStatus()
+    public static function getTransactionStatus(string $internalReference)
     {
-        $walletTransactions = WalletTransaction::where('transaction_status', 'pending')->get();
-        foreach ($walletTransactions as $walletTransaction) {
+        $transactions = MomoTransaction::where('internal_id', $internalReference)->get();
+        foreach ($transactions as $transaction) {
+            if ($transaction->internal_status === MomoTransaction::STATUS_PENDING) {
             $response = Http::asJson()->withHeaders(
                 [
                     'Accept' => 'application/vnd.relworx.v2',
                     'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $this->apiKey
+                    'Authorization' => 'Bearer ' . config('services.relworx.api_key')
                 ],
-            )->withQueryParams([
-                'internal_reference' => $walletTransaction->external_reference,
-                'account_no' => "REL08CACA5DDF"
-            ])->get(self::GET_TRANSACTION_STATUS_URL)->json();
-
-            Logger::info('Relworx get transaction status response', $response);
-
-            if ($response['success']) {
-                $walletTransaction->transaction_status = $response['status'];
-                $walletTransaction->save();
-
-                $wallet = Wallet::where('customer_id', $walletTransaction->customer_id)->first();
-                if ($wallet) {
-                    $wallet->balance += $walletTransaction->amount;
-                    $wallet->save();
+            )->get(self::GET_TRANSACTION_STATUS_URL, ['internal_reference' => $transaction->internal_id, 'account_no' => config('services.relworx.business_account')])->json();
+                if ($response['success']) {
+                    $transaction->internal_status = $response['status'];
+                    $transaction->external_status = $response['status'];
+                    $transaction->save();
+                    if($transaction->transaction_type === TransactionTypeEnum::DEPOSIT->value) {
+                        Wallet::where('id', $transaction->wallet_id)->increment('balance', $transaction->amount);
+                    } else {
+                        Wallet::where('id', $transaction->wallet_id)->decrement('balance', $transaction->amount);
+                    }
                 }
             }
         }

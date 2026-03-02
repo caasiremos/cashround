@@ -48,11 +48,8 @@ class NotifyGroupContributionMadeJob implements ShouldQueue
             if (empty($groupMember->fcm_token)) {
                 continue;
             }
-            $isContributor = (int) $groupMember->id === $this->contributorMemberId;
             $title = 'Contribution made';
-            $body = $isContributor
-                ? $contributorName . ' made a contribution for ' . $groupName . '.'
-                : 'A contribution for ' . $groupName . ' has been made.';
+            $body = $contributorName . ' made a contribution for ' . $groupName . '.';
             $groupMember->notify(new FcmNotification([
                 'title' => $title,
                 'body' => $body,
