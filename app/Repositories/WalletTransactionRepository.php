@@ -98,6 +98,25 @@ class WalletTransactionRepository
             throw new ExpectedException('You cannot transfer money to yourself');
         }
 
+        $groupId = (int) ($sourceWallet->group_id ?? 0);
+        if ($groupId <= 0) {
+            throw new ExpectedException('Source wallet is not linked to a group');
+        }
+
+        $requiredRoles = [GroupRole::CHAIRPERSON, GroupRole::TREASURER, GroupRole::SECRETARY];
+        $configuredRoles = GroupRole::query()
+            ->where('group_id', $groupId)
+            ->whereIn('role', $requiredRoles)
+            ->pluck('role')
+            ->unique()
+            ->values()
+            ->toArray();
+
+        if (count($configuredRoles) !== count($requiredRoles)) {
+            throw new ExpectedException('Group roles setup is incomplete. Please assign chairperson, treasurer, and secretary before initiating payout.');
+        }
+
+
         $transaction = WalletTransaction::create([
             'source_wallet_id' => $sourceWallet->id,
             'destination_wallet_id' => $destinationWallet->id,
