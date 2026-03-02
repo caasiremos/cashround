@@ -297,7 +297,7 @@ class WalletTransactionRepository
                 (int) $destinationWallet->group_id,
                 (int) $member->id
             );
-
+            $transaction->update(['status' => WalletTransaction::STATUS_SUCCESSFUL]);
             return $transaction;
         });
     }
