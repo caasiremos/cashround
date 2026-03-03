@@ -35,9 +35,17 @@ class MomoTransactionRepository
         $providerFee = $this->getProviderFee($amount, PhoneNumberUtil::provider($phoneNumber));
         $totalAmount = $amount + $serviceFee + $providerFee;
         $reference = Str::uuid()->toString();
+        Logger::info('Initiating Mobile Money collection for amount: '.$totalAmount.' and phone number: '.$phoneNumber);
         $response = MobileMoney::initiateCollection($reference, $phoneNumber, $totalAmount);
         if ($response['success'] === true) {
             DB::transaction(function () use ($member, $wallet, $amount, $phoneNumber, $reference, $response, $serviceFee, $providerFee) {
+                Logger::info(['Momo Transaction Data' => [
+                    'amount' => $amount,
+                    'service_fee' => $serviceFee,
+                    'provider_fee' => $providerFee,
+                    'reference' => $reference,
+                    'response' => $response,
+                ]]);
                 $transaction = MomoTransaction::create([
                     'member_id' => $member->id,
                     'amount' => $amount,
@@ -153,19 +161,19 @@ class MomoTransactionRepository
                     Notification::create([
                         'member_id' => $momoTransaction->member_id,
                         'title' => 'Wallet Deposit Successful',
-                        'body' => 'Your Wallet Deposit of UGX'.number_format($request->amount).' was successful.',
+                        'body' => 'Your Wallet Deposit of UGX'.number_format($momoTransaction->amount).' was successful.',
                     ]);
                 } else {
                     $notificationData = [
                         'title' => 'Wallet Deposit Failed',
-                        'body' => 'Your Wallet Deposit of UGX'.number_format($request->amount).' was failed.',
+                        'body' => 'Your Wallet Deposit of UGX'.number_format($momoTransaction->amount).' was failed.',
                         'data' => ['time' => now()],
                     ];
                     $momoTransaction->member->notify(new FcmNotification($notificationData));
                     Notification::create([
                         'member_id' => $momoTransaction->member_id,
                         'title' => 'Wallet Deposit',
-                        'body' => 'Your Wallet Deposit of UGX'.number_format($request->amount).' failed to complete.',
+                        'body' => 'Your Wallet Deposit of UGX'.number_format($momoTransaction->amount).' failed to complete.',
                     ]);
                     throw new ExpectedException('Momo transaction not found');
                 }
