@@ -142,8 +142,8 @@ class MomoTransactionRepository
                     $momoTransaction->save();
 
                     Wallet::where('member_id', $momoTransaction->member_id)->increment('balance', $request->amount);
-            
-                    Wallet::where('account_number', 'like', 'CRT%')->increment('balance', $momoTransaction->service_fee);
+                    $revenueWallet = Wallet::where('account_number', 'like', 'CRR%')->first();
+                    $revenueWallet->increment('balance', ($momoTransaction->service_fee));
                     $notificationData = [
                         'title' => 'Wallet Deposit',
                         'body' => 'Your Wallet Deposit of '.$request->amount.' was successful.',
