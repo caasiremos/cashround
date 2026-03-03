@@ -15,6 +15,8 @@ use Illuminate\Support\Str;
 
 class GroupRepository
 {
+    public function __construct() {}
+
     /**
      * Get the wallet balance of a group
      *
@@ -74,6 +76,34 @@ class GroupRepository
 
             return $group;
         });
+    }
+
+    /**
+     * Update group details. Editing is only allowed when the current circle has ended,
+     * because amount and frequency are tied to a circle.
+     *
+     * @param Group $group
+     * @param array $data
+     * @return Group
+     * @throws ExpectedException when the current circle is not yet complete
+     */
+    public function editGroup(Group $group, array $data): Group
+    {
+        $groupRotationRepository = new GroupRotationRepository();
+        if ($groupRotationRepository->isRotationOrderUpdateBlocked($group)) {
+            throw new ExpectedException(
+                'Group cannot be edited until the current circle ends. Amount and frequency are tied to a circle.'
+            );
+        }
+
+        $allowed = ['name', 'description', 'frequency', 'start_date', 'amount'];
+        $filtered = array_intersect_key($data, array_flip($allowed));
+
+        if ($filtered !== []) {
+            $group->update($filtered);
+        }
+
+        return $group->fresh();
     }
 
     /**
