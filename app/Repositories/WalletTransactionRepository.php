@@ -89,9 +89,9 @@ class WalletTransactionRepository
         if (! $sourceWallet) {
             throw new ExpectedException('Source wallet not found');
         }
-
-        if ($sourceWallet->balance < $data['amount']) {
-            throw new ExpectedException('Insufficient balance');
+        $totalBalance = $sourceWallet->balance - WalletTransaction::calculateServiceFee((float)$data['amount']);
+        if ($totalBalance < $data['amount']) {
+            throw new ExpectedException('Insufficient balance,you need to have UGX '.$totalBalance.' to transfer UGX '.$data['amount']);
         }
 
         if ($destinationWallet->id === $sourceWallet->id) {

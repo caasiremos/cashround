@@ -31,8 +31,8 @@ class MomoTransactionRepository
         $wallet = $member->wallet;
         $amount = (float) $data['amount'];
         $phoneNumber = $data['phone_number'];
-        $serviceFee = $this->getServiceFee($amount, PhoneNumberUtil::provider($phoneNumber));
-        $providerFee = $this->getProviderFee($amount, PhoneNumberUtil::provider($phoneNumber));
+        $serviceFee = MomoTransaction::serviceDepositFee($amount);
+        $providerFee = MomoTransaction::providerDepositFee($amount);
         $totalAmount = $amount + $serviceFee + $providerFee;
         $reference = Str::uuid()->toString();
         Logger::info('Initiating Mobile Money collection for amount: '.$totalAmount.' and phone number: '.$phoneNumber);

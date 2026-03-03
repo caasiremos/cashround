@@ -27,6 +27,15 @@ class MomoTransaction extends Model
         'error_message',
     ];
 
+    public static function providerDepositFee(float $amount): float
+    {
+        return $amount * 0.03;
+    }
+    public static function serviceDepositFee(float $amount): float
+    {
+        return $amount * 0.01;
+    }
+
     public function wallet()
     {
         return $this->belongsTo(Wallet::class);
@@ -36,5 +45,4 @@ class MomoTransaction extends Model
     {
         return $this->belongsTo(Member::class);
     }
-
 }
