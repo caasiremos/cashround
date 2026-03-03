@@ -108,4 +108,18 @@ class GroupService
     {
         return $this->groupRepository->getGroupTransactionAuth($groupId);
     }
+
+    /**
+     * Update group details. Editing is only allowed when the current circle has ended,
+     * because amount and frequency are tied to a circle.
+     *
+     * @param Group $group
+     * @param array $data
+     * @return Group
+     * @throws ExpectedException when the current circle is not yet complete
+     */
+    public function editGroup(Group $group, array $data): Group
+    {
+        return $this->groupRepository->editGroup($group, $data);
+    }
 }

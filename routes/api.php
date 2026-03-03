@@ -25,6 +25,7 @@ Route::post('/member/reset-password', [MemberApiController::class, 'resetPasswor
 Route::prefix('groups')->middleware('auth:members')->group(function () {
     Route::get('/', [GroupApiController::class, 'getMemberGroups']);
     Route::post('/', [GroupApiController::class, 'createGroup']);
+    Route::patch('/{group}', [GroupApiController::class, 'editGroup']);
     Route::get('/{group}', [GroupApiController::class, 'getGroupById']);
     Route::get('/{group}/transaction-auth', [GroupApiController::class, 'getGroupTransactionAuth']);
     Route::post('/{group}/role', [GroupApiController::class, 'setMemberRole']);

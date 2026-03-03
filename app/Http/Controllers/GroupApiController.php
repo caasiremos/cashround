@@ -112,4 +112,16 @@ class GroupApiController extends Controller
 
         return new ApiSuccessResponse($transactionAuth, 'Transaction auths fetched successfully');
     }
+
+    /**
+     * Update group details. Editing is only allowed when the current circle has ended,
+     * because amount and frequency are tied to a circle.
+     *
+     * @return ApiSuccessResponse
+     */
+    public function editGroup(Group $group, Request $request)
+    {
+        $group = $this->groupService->editGroup($group, $request->all());
+        return new ApiSuccessResponse($group, 'Group updated successfully');
+    }
 }
