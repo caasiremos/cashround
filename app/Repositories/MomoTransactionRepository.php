@@ -147,6 +147,7 @@ class MomoTransactionRepository
                     $momoTransaction->internal_status = $request->status;
                     $momoTransaction->external_status = $request->status;
                     $momoTransaction->external_id = $request->internal_reference;
+                    $momoTransaction->provider_fee = $request->charge;
                     $momoTransaction->save();
 
                     Wallet::where('member_id', $momoTransaction->member_id)->increment('balance', $request->amount);
@@ -200,6 +201,7 @@ class MomoTransactionRepository
                     $momoTransaction->internal_status = $request->status;
                     $momoTransaction->external_status = $request->status;
                     $momoTransaction->external_id = $request->internal_reference;
+                    $momoTransaction->provider_fee = $request->charge;
                     $momoTransaction->save();
                     Wallet::where('member_id', $momoTransaction->member_id)->decrement('balance', $request->amount + $momoTransaction->service_fee + $momoTransaction->provider_fee);
                     $notificationData = [
