@@ -180,6 +180,11 @@ class MomoTransactionRepository
                 }
             });
         } else {
+            MomoTransaction::where('internal_id', $request->customer_reference)->update([
+                'internal_status' => MomoTransaction::STATUS_FAILED,
+                'external_status' => MomoTransaction::STATUS_FAILED,
+                'error_message' => $request->message,
+            ]);
             throw new ExpectedException('Relworx collection callback failed');
         }
     }
