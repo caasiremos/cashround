@@ -37,8 +37,4 @@ class MomoTransaction extends Model
         return $this->belongsTo(Member::class);
     }
 
-    public function transactionType()
-    {
-        return $this->belongsTo(TransactionType::class);
-    }
 }
