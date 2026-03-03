@@ -37,7 +37,7 @@ class MomoTransactionRepository
         $reference = Str::uuid()->toString();
         $response = MobileMoney::initiateCollection($reference, $phoneNumber, $totalAmount);
         if ($response['success'] === true) {
-            DB::transaction(function () use ($member, $wallet, $amount, $phoneNumber, $reference, $response) {
+            DB::transaction(function () use ($member, $wallet, $amount, $phoneNumber, $reference, $response, $serviceFee, $providerFee) {
                 $transaction = MomoTransaction::create([
                     'member_id' => $member->id,
                     'amount' => $amount,
@@ -46,8 +46,8 @@ class MomoTransactionRepository
                     'internal_status' => MomoTransaction::STATUS_PENDING,
                     'external_status' => MomoTransaction::STATUS_PENDING,
                     'external_id' => $response['internal_reference'],
-                    'provider_fee' => 0,
-                    'service_fee' => 0,
+                    'provider_fee' => $providerFee,
+                    'service_fee' => $serviceFee,
                     'telco_provider' => PhoneNumberUtil::provider($phoneNumber),
                     'wallet_id' => $wallet->id,
                     'internal_id' => $reference,
