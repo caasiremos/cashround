@@ -33,9 +33,9 @@ class MomoTransactionRepository
         $phoneNumber = $data['phone_number'];
         $serviceFee = MomoTransaction::serviceDepositFee($amount);
         $providerFee = MomoTransaction::providerDepositFee($amount);
-        $totalAmount = $amount + $serviceFee + $providerFee;
+        $totalAmount = MomoTransaction::calculateDepositTotal($amount);
         $reference = Str::uuid()->toString();
-        Logger::info('Initiating Mobile Money collection for amount: ' . $totalAmount . ' and phone number: ' . $phoneNumber);
+        Logger::info('Initiating Mobile Money collection for amount: '.$totalAmount.' and phone number: '.$phoneNumber);
         $response = MobileMoney::initiateCollection($reference, $phoneNumber, $totalAmount);
         if ($response['success'] === true) {
             DB::transaction(function () use ($member, $wallet, $amount, $phoneNumber, $reference, $response, $serviceFee, $providerFee) {
@@ -86,7 +86,7 @@ class MomoTransactionRepository
         $totalAmount = $amount + $serviceFee + $providerFee;
 
         if ($totalAmount > $wallet->balance) {
-            throw new ExpectedException('Insufficient balance,you need to have UGX ' . number_format($totalAmount) . ' to withdraw UGX ' . number_format($amount));
+            throw new ExpectedException('Insufficient balance,you need to have UGX '.number_format($totalAmount).' to withdraw UGX '.number_format($amount));
         }
         $response = MobileMoney::initiateDisbursement($reference, $phoneNumber, $amount);
         if ($response['success'] === true) {
@@ -110,7 +110,7 @@ class MomoTransactionRepository
                 return $transaction;
             });
         } else {
-            throw new ExpectedException('Failed initiating Mobile Money withdrawal: ' . $response['message']);
+            throw new ExpectedException('Failed initiating Mobile Money withdrawal: '.$response['message']);
         }
     }
 
@@ -148,31 +148,31 @@ class MomoTransactionRepository
                     $momoTransaction->provider_fee = $request->charge;
                     $momoTransaction->save();
 
-                    Wallet::where('member_id', $momoTransaction->member_id)->increment('balance', $request->amount);
-                    $revenueWallet = Wallet::where('account_number', 'like', 'CRR%')->first();
+                    Wallet::where('member_id', $momoTransaction->member_id)->increment('balance', $momoTransaction->amount);
+                    $revenueWallet = Wallet::where('account_number', 'like', 'CRR%')->lockForUpdate()->first();
                     $revenueWallet->increment('balance', ($momoTransaction->service_fee));
                     $notificationData = [
                         'title' => 'Wallet Deposit',
-                        'body' => 'Your Wallet Deposit of ' . $momoTransaction->amount . ' was successful.',
+                        'body' => 'Your Wallet Deposit of '.$momoTransaction->amount.' was successful.',
                         'data' => ['time' => now()],
                     ];
                     $momoTransaction->member->notify(new FcmNotification($notificationData));
                     Notification::create([
                         'member_id' => $momoTransaction->member_id,
                         'title' => 'Wallet Deposit Successful',
-                        'body' => 'Your Wallet Deposit of UGX' . number_format($momoTransaction->amount) . ' was successful.',
+                        'body' => 'Your Wallet Deposit of UGX'.number_format($momoTransaction->amount).' was successful.',
                     ]);
                 } else {
                     $notificationData = [
                         'title' => 'Wallet Deposit Failed',
-                        'body' => 'Your Wallet Deposit of UGX' . number_format($momoTransaction->amount) . ' was failed.',
+                        'body' => 'Your Wallet Deposit of UGX'.number_format($momoTransaction->amount).' was failed.',
                         'data' => ['time' => now()],
                     ];
                     $momoTransaction->member->notify(new FcmNotification($notificationData));
                     Notification::create([
                         'member_id' => $momoTransaction->member_id,
                         'title' => 'Wallet Deposit',
-                        'body' => 'Your Wallet Deposit of UGX' . number_format($momoTransaction->amount) . ' failed to complete. Error message: ' . $request->message,
+                        'body' => 'Your Wallet Deposit of UGX'.number_format($momoTransaction->amount).' failed to complete. Error message: '.$request->message,
                     ]);
                     throw new ExpectedException('Momo transaction not found');
                 }
@@ -187,17 +187,16 @@ class MomoTransactionRepository
                 'member_id' => $momoTransaction->customer_reference,
                 'title' => 'Wallet Deposit Failed',
             ], [
-                'body' => 'Your Wallet Deposit of UGX' . number_format($momoTransaction->amount) . ' failed to complete.',
+                'body' => 'Your Wallet Deposit of UGX'.number_format($momoTransaction->amount).' failed to complete.',
             ]);
             if ($momoTransaction->internal_status === MomoTransaction::STATUS_FAILED) {
                 $momoTransaction->member->notify(new FcmNotification([
                     'title' => 'Wallet Deposit Failed',
-                    'body' => 'Your Wallet Deposit of UGX' . number_format($momoTransaction->amount) . ' failed to complete. Error message: ' . $request->message,
+                    'body' => 'Your Wallet Deposit of UGX'.number_format($momoTransaction->amount).' failed to complete. Error message: '.$request->message,
                     'data' => ['time' => now()],
                 ]));
-            } 
+            }
             throw new ExpectedException('Relworx collection callback failed');
-            
         }
     }
 
@@ -223,27 +222,27 @@ class MomoTransactionRepository
                     Wallet::where('member_id', $momoTransaction->member_id)->decrement('balance', $request->amount + $momoTransaction->service_fee + $momoTransaction->provider_fee);
                     $notificationData = [
                         'title' => 'Wallet Withdrawal',
-                        'body' => 'Your Wallet Withdrawal of UGX' . number_format($request->amount) . ' was successful.',
+                        'body' => 'Your Wallet Withdrawal of UGX'.number_format($request->amount).' was successful.',
                         'data' => ['time' => now()],
                     ];
                     $momoTransaction->member->notify(new FcmNotification($notificationData));
                     Notification::create([
                         'member_id' => $momoTransaction->member_id,
                         'title' => 'Wallet Withdrawal Successful',
-                        'body' => 'Your Wallet Withdrawal of UGX' . number_format($request->amount) . ' was successful.',
+                        'body' => 'Your Wallet Withdrawal of UGX'.number_format($request->amount).' was successful.',
                     ]);
                 } else {
                     throw new ExpectedException('Momo transaction not found');
                     $notificationData = [
                         'title' => 'Wallet Withdrawal Failed',
-                        'body' => 'Your Wallet Withdrawal of UGX' . number_format($request->amount) . ' was failed. Error message: ' . $request->message,
+                        'body' => 'Your Wallet Withdrawal of UGX'.number_format($request->amount).' was failed. Error message: '.$request->message,
                         'data' => ['time' => now()],
                     ];
                     $momoTransaction->member->notify(new FcmNotification($notificationData));
                     Notification::create([
                         'member_id' => $momoTransaction->member_id,
                         'title' => 'Wallet Withdrawal Failed',
-                        'body' => 'Your Wallet Withdrawal of UGX' . number_format($request->amount) . ' failed to complete. Error message: ' . $request->message,
+                        'body' => 'Your Wallet Withdrawal of UGX'.number_format($request->amount).' failed to complete. Error message: '.$request->message,
                     ]);
                     throw new ExpectedException('Relworx disbursement callback failed');
                 }
@@ -258,12 +257,12 @@ class MomoTransactionRepository
                 'member_id' => $momoTransaction->member_id,
                 'title' => 'Wallet Withdrawal Failed',
             ], [
-                'body' => 'Your Wallet Withdrawal of UGX' . number_format($momoTransaction->amount) . ' failed to complete. Error message: ' . $request->message,
+                'body' => 'Your Wallet Withdrawal of UGX'.number_format($momoTransaction->amount).' failed to complete. Error message: '.$request->message,
             ]);
             if ($momoTransaction->internal_status === MomoTransaction::STATUS_FAILED) {
                 $momoTransaction->member->notify(new FcmNotification([
                     'title' => 'Wallet Withdrawal Failed',
-                    'body' => 'Your Wallet Withdrawal of UGX' . number_format($momoTransaction->amount) . ' failed to complete. Error message: ' . $request->message,
+                    'body' => 'Your Wallet Withdrawal of UGX'.number_format($momoTransaction->amount).' failed to complete. Error message: '.$request->message,
                     'data' => ['time' => now()],
                 ]));
             }
@@ -273,7 +272,7 @@ class MomoTransactionRepository
 
     public function getServiceFee(int $amount, string $telcoProvider): int
     {
-        Logger::info('Getting service fee for amount: ' . $amount . ' and provider: ' . $telcoProvider);
+        Logger::info('Getting service fee for amount: '.$amount.' and provider: '.$telcoProvider);
         $fee = TransactionFee::where('provider', $telcoProvider)
             ->where('transaction_type', TransactionTypeEnum::WITHDRAWAL->value)
             ->where('min_amount', '<=', $amount)
@@ -289,7 +288,7 @@ class MomoTransactionRepository
 
     public function getProviderFee(int $amount, string $telcoProvider): int
     {
-        Logger::info('Getting provider fee for amount: ' . $amount . ' and provider: ' . $telcoProvider);
+        Logger::info('Getting provider fee for amount: '.$amount.' and provider: '.$telcoProvider);
         $fee = TransactionFee::where('provider', $telcoProvider)
             ->where('transaction_type', TransactionTypeEnum::WITHDRAWAL->value)
             ->where('min_amount', '<=', $amount)

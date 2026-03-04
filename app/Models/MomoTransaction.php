@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class MomoTransaction extends Model
 {
-    public CONST STATUS_PENDING = 'pending';
-    public CONST STATUS_SUCCESSFUL = 'successful';
-    public CONST STATUS_FAILED = 'failed';
-    public CONST STATUS_CANCELLED = 'cancelled';
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_SUCCESSFUL = 'successful';
+    public const STATUS_FAILED = 'failed';
+    public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
         'wallet_id',
@@ -35,7 +35,16 @@ class MomoTransaction extends Model
     {
         return $amount * 0.01;
     }
+    public static function calculateDepositTotal($amount)
+    {
+        $serviceRate = 0.01;
+        $gatewayRate = 0.03;
 
+        $amountPlusService = $amount * (1 + $serviceRate);
+
+        return round($amountPlusService / (1 - $gatewayRate), 2);
+    }
+    
     public function wallet()
     {
         return $this->belongsTo(Wallet::class);
