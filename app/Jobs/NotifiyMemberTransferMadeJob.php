@@ -55,7 +55,7 @@ class NotifiyMemberTransferMadeJob implements ShouldQueue
 
         if (! empty($destinationMember->fcm_token)) {
             $destinationMember->notify(new FcmNotification([
-                'title' => 'Transfer received',
+                'title' => 'Transfer Received',
                 'body' => $sourceName . ' sent you UGX' . $formattedAmount . '.',
                 'data' => [
                     'type' => 'member_transfer_received',

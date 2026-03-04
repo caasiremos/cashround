@@ -15,6 +15,7 @@ use App\Models\TransactionAuth;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
 use App\Jobs\NotifyGroupContributionMadeJob;
+use App\Models\Notification;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -63,7 +64,11 @@ class WalletTransactionRepository
             Wallet::where('id', $destinationWallet->id)->increment('balance', $data['amount']);
             $revenueWallet = Wallet::where('account_number', 'like', 'CRT%')->first();
             $revenueWallet->increment('balance', WalletTransaction::calculateServiceFee((float)$data['amount']));
-
+            Notification::create([
+                'member_id' => $sourceWallet->member_id,
+                'title' => 'Wallet Transfer',
+                'body' => 'Your Wallet Transfer of UGX' . number_format($data['amount']) . ' was successful.',
+            ]);
             NotifiyMemberTransferMadeJob::dispatch(
                 (int) $sourceWallet->member_id,
                 (int) $destinationWallet->member_id,
