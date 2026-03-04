@@ -288,9 +288,9 @@ class WalletTransactionRepository
         if (intval($group->amount) !== intval($data['amount'])) {
             throw new ExpectedException('Amount is not correct, the amount should be ' . $group->amount . ' for this group');
         }
-        if ($this->hasMemberAlreadyContributedThisRotation($groupId, (int) $member->id)) {
-            throw new ExpectedException('You have already contributed for this rotation. You can contribute again when the next rotation starts.');
-        }
+        // if ($this->hasMemberAlreadyContributedThisRotation($groupId, (int) $member->id)) {
+        //     throw new ExpectedException('You have already contributed for this rotation. You can contribute again when the next rotation starts.');
+        // }
 
         // Prevent repeat contributions across frequency boundaries until payout closes the cycle.
         if ($this->hasMemberContributedInCurrentPayoutCycle($group, (int) $member->id)) {

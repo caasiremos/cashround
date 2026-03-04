@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\ExpectedException;
 use App\Models\Group;
 use App\Models\GroupRole;
 use App\Models\Member;
@@ -122,6 +123,9 @@ class GroupService
     public function editGroup(Group $group, array $data): Group
     {
         Logger::info('Editing group', ['group' => $group, 'data' => $data]);
+        if(auth('members')->id() !== $group->owner_id) {
+            throw new ExpectedException('Only the group admin can edit the group');
+        }
         return $this->groupRepository->editGroup($group, $data);
     }
 }
