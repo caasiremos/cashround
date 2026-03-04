@@ -172,7 +172,7 @@ class MomoTransactionRepository
                     Notification::create([
                         'member_id' => $momoTransaction->member_id,
                         'title' => 'Wallet Deposit',
-                        'body' => 'Your Wallet Deposit of UGX' . number_format($momoTransaction->amount) . ' failed to complete.',
+                        'body' => 'Your Wallet Deposit of UGX' . number_format($momoTransaction->amount) . ' failed to complete. Error message: ' . $request->message,
                     ]);
                     throw new ExpectedException('Momo transaction not found');
                 }
@@ -232,14 +232,14 @@ class MomoTransactionRepository
                     throw new ExpectedException('Momo transaction not found');
                     $notificationData = [
                         'title' => 'Wallet Withdrawal Failed',
-                        'body' => 'Your Wallet Withdrawal of UGX' . number_format($request->amount) . ' was failed.',
+                        'body' => 'Your Wallet Withdrawal of UGX' . number_format($request->amount) . ' was failed. Error message: ' . $request->message,
                         'data' => ['time' => now()],
                     ];
                     $momoTransaction->member->notify(new FcmNotification($notificationData));
                     Notification::create([
                         'member_id' => $momoTransaction->member_id,
                         'title' => 'Wallet Withdrawal Failed',
-                        'body' => 'Your Wallet Withdrawal of UGX' . number_format($request->amount) . ' failed to complete.',
+                        'body' => 'Your Wallet Withdrawal of UGX' . number_format($request->amount) . ' failed to complete. Error message: ' . $request->message,
                     ]);
                     throw new ExpectedException('Relworx disbursement callback failed');
                 }
