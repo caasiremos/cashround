@@ -110,7 +110,7 @@ class MomoTransactionRepository
                 return $transaction;
             });
         } else {
-            throw new ExpectedException('Failed initiating Mobile Money withdrawal: '.$response['message']);
+            throw new ExpectedException('Failed initiating Mobile Money withdrawal: ' . $response['message']);
         }
     }
 
@@ -183,17 +183,21 @@ class MomoTransactionRepository
             $momoTransaction->external_status = MomoTransaction::STATUS_FAILED;
             $momoTransaction->error_message = $request->message;
             $momoTransaction->save();
-            Notification::create([
-                'member_id' => $momoTransaction->member_id,
+            Notification::updateOrCreate([
+                'member_id' => $momoTransaction->customer_reference,
                 'title' => 'Wallet Deposit Failed',
+            ], [
                 'body' => 'Your Wallet Deposit of UGX' . number_format($momoTransaction->amount) . ' failed to complete.',
             ]);
-            $momoTransaction->member->notify(new FcmNotification([
-                'title' => 'Wallet Withdrawal Failed',
-                'body' => 'Your Wallet Withdrawal of UGX' . number_format($momoTransaction->amount) . ' failed to complete. Error message: ' . $request->message,
-                'data' => ['time' => now()],
-            ]));
-            throw new ExpectedException('Relworx disbursement callback failed');
+            if ($momoTransaction->internal_status === MomoTransaction::STATUS_FAILED) {
+                $momoTransaction->member->notify(new FcmNotification([
+                    'title' => 'Wallet Deposit Failed',
+                    'body' => 'Your Wallet Deposit of UGX' . number_format($momoTransaction->amount) . ' failed to complete. Error message: ' . $request->message,
+                    'data' => ['time' => now()],
+                ]));
+            } 
+            throw new ExpectedException('Relworx collection callback failed');
+            
         }
     }
 
@@ -250,17 +254,20 @@ class MomoTransactionRepository
             $momoTransaction->external_status = MomoTransaction::STATUS_FAILED;
             $momoTransaction->error_message = $request->message;
             $momoTransaction->save();
-            Notification::create([
+            Notification::updateOrCreate([
                 'member_id' => $momoTransaction->member_id,
                 'title' => 'Wallet Withdrawal Failed',
-                'body' => 'Your Wallet Withdrawal of UGX' . number_format($momoTransaction->amount) . ' failed to complete.',
-            ]);
-            $momoTransaction->member->notify(new FcmNotification([
-                'title' => 'Wallet Withdrawal Failed',
+            ], [
                 'body' => 'Your Wallet Withdrawal of UGX' . number_format($momoTransaction->amount) . ' failed to complete. Error message: ' . $request->message,
-                'data' => ['time' => now()],
-            ]));
-            throw new ExpectedException('Relworx disbursement callback failed');
+            ]);
+            if ($momoTransaction->internal_status === MomoTransaction::STATUS_FAILED) {
+                $momoTransaction->member->notify(new FcmNotification([
+                    'title' => 'Wallet Withdrawal Failed',
+                    'body' => 'Your Wallet Withdrawal of UGX' . number_format($momoTransaction->amount) . ' failed to complete. Error message: ' . $request->message,
+                    'data' => ['time' => now()],
+                ]));
+            }
+            throw new ExpectedException('Relworx collection callback failed');
         }
     }
 
