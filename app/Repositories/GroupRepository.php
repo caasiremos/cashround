@@ -97,7 +97,7 @@ class GroupRepository
         }
 
         $allowed = ['name', 'description', 'frequency', 'start_date', 'amount'];
-        $filtered = array_intersect_key($data, array_flip($allowed));
+        $filtered = array_intersect_key($data['data'], array_flip($allowed));
 
         if ($filtered !== []) {
             $group->update($filtered);
