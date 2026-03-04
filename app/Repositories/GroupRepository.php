@@ -98,10 +98,13 @@ class GroupRepository
 
         $allowed = ['name', 'description', 'frequency', 'start_date', 'amount'];
         $filtered = array_intersect_key($data, array_flip($allowed));
+        $group->name = data_get($filtered, 'name');
+        $group->description = data_get($filtered, 'description');
+        $group->frequency = data_get($filtered, 'frequency');
+        $group->start_date = data_get($filtered, 'start_date');
+        $group->amount = data_get($filtered, 'amount');
+        $group->save();
 
-        if ($filtered !== []) {
-            $group->update($filtered);
-        }
 
         return $group->fresh();
     }
