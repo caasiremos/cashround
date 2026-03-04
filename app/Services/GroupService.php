@@ -7,6 +7,7 @@ use App\Models\GroupRole;
 use App\Models\Member;
 use App\Models\TransactionAuth;
 use App\Repositories\GroupRepository;
+use App\Utils\Logger;
 use Illuminate\Database\Eloquent\Collection;
 
 class GroupService
@@ -120,6 +121,7 @@ class GroupService
      */
     public function editGroup(Group $group, array $data): Group
     {
+        Logger::info('Editing group', ['group' => $group, 'data' => $data]);
         return $this->groupRepository->editGroup($group, $data);
     }
 }
