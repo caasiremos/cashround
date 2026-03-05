@@ -80,12 +80,13 @@ class GroupRepository
 
     /**
      * Update group details. Editing is only allowed when the current circle has ended,
-     * because amount and frequency are tied to a circle.
+     * because amount and frequency are tied to a circle. Start date cannot be changed
+     * after the first circle has ended.
      *
      * @param Group $group
      * @param array $data
      * @return Group
-     * @throws ExpectedException when the current circle is not yet complete
+     * @throws ExpectedException when the current circle is not yet complete, or when changing start date after the first circle
      */
     public function editGroup(Group $group, array $data): Group
     {
@@ -98,11 +99,20 @@ class GroupRepository
 
         $allowed = ['name', 'description', 'frequency', 'start_date', 'amount'];
         $filtered = array_intersect_key($data, array_flip($allowed));
+
+        if ($group->completed_circles > 0 && array_key_exists('start_date', $filtered)) {
+            throw new ExpectedException(
+                'Start date cannot be edited after the first circle has ended.'
+            );
+        }
+
         $group->name = data_get($filtered, 'name');
         $group->description = data_get($filtered, 'description');
         $group->frequency = data_get($filtered, 'frequency');
-        $group->start_date = data_get($filtered, 'start_date');
-        $group->amount = data_get($filtered, 'amount');
+        $group->start_date = $group->completed_circles > 0
+            ? $group->start_date
+            : data_get($filtered, 'start_date');
+        $group->amount = intval(data_get($filtered, 'amount'));
         $group->save();
 
 
