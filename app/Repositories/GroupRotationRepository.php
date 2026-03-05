@@ -322,6 +322,9 @@ class GroupRotationRepository
                 ->update(['rotation_position' => $position]);
         }
 
+        $firstMemberId = (int) (collect($order)->sortBy('rotation_position')->first()['member_id']);
+        $group->update(['current_recipient_member_id' => $firstMemberId]);
+
         return $group->fresh();
     }
 
