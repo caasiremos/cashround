@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Group extends Model
@@ -39,6 +40,13 @@ class Group extends Model
             'start_date' => 'date:Y-m-d',
             'end_date' => 'date:Y-m-d',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope('active', function (Builder $builder) {
+            $builder->where('status', 'active');
+        });
     }
 
     public function members()
