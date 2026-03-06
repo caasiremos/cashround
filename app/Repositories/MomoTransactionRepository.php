@@ -153,7 +153,7 @@ class MomoTransactionRepository
                     $revenueWallet->increment('balance', ($momoTransaction->service_fee));
                     $notificationData = [
                         'title' => 'Wallet Deposit',
-                        'body' => 'Your Wallet Deposit of '.number_format($momoTransaction->amount).' was successful.',
+                        'body' => 'Your Wallet Deposit of UGX'.number_format($momoTransaction->amount).' was successful.',
                         'data' => ['time' => now()],
                     ];
                     $momoTransaction->member->notify(new FcmNotification($notificationData));
