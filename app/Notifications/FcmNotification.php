@@ -44,7 +44,9 @@ class FcmNotification extends Notification
     }
 
     /**
-     * Get the array representation of the notification.
+     * Get the array representation of the notification (FCM v1 message format).
+     * Includes both "notification" and "data" so the system can show the notification
+     * even when the app is killed.
      *
      * @return array<string, mixed>
      */
@@ -54,9 +56,14 @@ class FcmNotification extends Notification
         $data = array_map(fn ($v) => is_scalar($v) ? (string) $v : json_encode($v), $data);
 
         return [
-            'title' => $this->notificationData['title'],
-            'body' => $this->notificationData['body'],
-            'data' => $data,
+            'message' => [
+                'token' => $notifiable->routeNotificationFor('fcm'),
+                'notification' => [
+                    'title' => $this->notificationData['title'],
+                    'body' => $this->notificationData['body'],
+                ],
+                'data' => $data,
+            ],
         ];
     }
 }
