@@ -23,9 +23,9 @@ class FcmChannel
             return null;
         }
 
-        // FcmClient expects an array with title, body, data (from toArray)
+        // Payload is FCM v1 format: { message: { token, notification, data } }
         $payload = $notification->toArray($notifiable);
-        $response = $this->fcmClient->sendMessage($token, $payload);
+        $response = $this->fcmClient->sendMessage($payload);
 
         if (ServicesFcmClient::wasSuccessful($response)) {
             Log::info('FCM sent successfully', ['message_id' => $response['name'] ?? null]);
