@@ -211,4 +211,36 @@ class GroupRepository
             ->latest()
             ->first();
     }
+
+    /**
+     * Close a group
+     *
+     * @param Group $group
+     * @return Group
+     */
+    public function closeGroup(Group $group)
+    {
+        $group->status = Group::STATUS_CLOSED;
+        $group->end_date = now();
+        $group->save();
+
+        return $group;
+    }
+
+    /**
+     * Leave a group
+     *
+     * @param Group $group
+     * @param Member $member
+     * @return Group
+     */
+    public function removeMemberFromGroup(Group $group, Member $member)
+    {
+        DB::transaction(function () use ($group, $member) {
+            $group->members()->detach($member->id);
+            $group->groupRoles()->where('member_id', $member->id)->delete();
+        });
+
+        return $group->fresh();
+    }
 }

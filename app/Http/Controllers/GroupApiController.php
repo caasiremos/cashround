@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\GroupFormRequest;
 use App\Http\Responses\ApiSuccessResponse;
 use App\Models\Group;
+use App\Models\Member;
 use App\Services\GroupService;
 use Illuminate\Http\Request;
 
@@ -123,5 +124,30 @@ class GroupApiController extends Controller
     {
         $group = $this->groupService->editGroup($group, $request->all());
         return new ApiSuccessResponse($group, 'Group updated successfully');
+    }
+
+    /**
+     * Close a group
+     *
+     * @param Group $group
+     * @return ApiSuccessResponse
+     */
+    public function closeGroup(Group $group)
+    {
+        $group = $this->groupService->closeGroup($group);
+        return new ApiSuccessResponse($group, 'Group closed successfully');
+    }
+
+    /**
+     * Remove a member from a group
+     *
+     * @param Group $group
+     * @param Member $member
+     * @return ApiSuccessResponse
+     */
+    public function removeMemberFromGroup(Group $group, Member $member)
+    {
+        $group = $this->groupService->removeMemberFromGroup($group, $member);
+        return new ApiSuccessResponse($group, 'Member removed from group successfully');
     }
 }

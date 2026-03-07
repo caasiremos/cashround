@@ -128,4 +128,30 @@ class GroupService
         }
         return $this->groupRepository->editGroup($group, $data);
     }
+
+    /**
+     * Close a group
+     *
+     * @param Group $group
+     * @return Group
+     */
+    public function closeGroup(Group $group)
+    {
+        if(auth('members')->id() !== $group->owner_id) {
+            throw new ExpectedException('Only the group admin can close the group');
+        }
+        return $this->groupRepository->closeGroup($group);
+    }
+
+    /**
+     * Remove a member from a group
+     *
+     * @param Group $group
+     * @param Member $member
+     * @return Group
+     */
+    public function removeMemberFromGroup(Group $group, Member $member)
+    {
+        return $this->groupRepository->removeMemberFromGroup($group, $member);
+    }
 }

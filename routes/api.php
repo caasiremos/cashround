@@ -37,6 +37,8 @@ Route::prefix('groups')->middleware('auth:members')->group(function () {
     Route::post('/{group}/invites', [GroupInviteApiController::class, 'sendInvite']);
     Route::get('/{group}/wallet-balance', [GroupApiController::class, 'getGroupWalletBalance']);
     Route::get('/{group}/wallet-transactions', [WalletTransactionApiController::class, 'getGroupWalletTransactions']);
+    Route::post('/{group}/close', [GroupApiController::class, 'closeGroup']);
+    Route::delete('/{group}/remove-member/{member}', [GroupApiController::class, 'removeMemberFromGroup']);
 });
 
 Route::prefix('invites')->middleware('auth:members')->group(function () {

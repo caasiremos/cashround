@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Group extends Model
 {
+    public CONST STATUS_ACTIVE = 'active';
+    public CONST STATUS_CLOSED = 'closed';
+
     protected $fillable = [
         'name',
         'description',
@@ -41,7 +44,7 @@ class Group extends Model
             'end_date' => 'date:Y-m-d',
         ];
     }
-
+    
     protected static function booted(): void
     {
         static::addGlobalScope('active', function (Builder $builder) {
