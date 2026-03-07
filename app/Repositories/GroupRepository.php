@@ -242,7 +242,7 @@ class GroupRepository
     public function removeMemberFromGroup(Group $group, Member $member)
     {
         if((new GroupRotationRepository())->isRotationOrderUpdateBlocked($group)) {
-            throw new ExpectedException('Group cannot be edited until the current circle ends. Amount and frequency are tied to a circle.');
+            throw new ExpectedException('Member cannot be removed or leave the group until the current circle ends.');
         }
         return DB::transaction(function () use ($group, $member) {
             $group->members()->detach($member->id);
