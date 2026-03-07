@@ -220,11 +220,16 @@ class GroupRepository
      */
     public function closeGroup(Group $group)
     {
-        $group->status = Group::STATUS_CLOSED;
-        $group->end_date = now();
-        $group->save();
+        if((new GroupRotationRepository())->isRotationOrderUpdateBlocked($group)) {
+            throw new ExpectedException('Group cannot be closed until the current circle ends.');
+        }
+        return DB::transaction(function () use ($group) {
+            $group->status = Group::STATUS_CLOSED;
+            $group->end_date = now();
+            $group->save();
 
-        return $group;
+            return $group;
+        });
     }
 
     /**
@@ -236,11 +241,13 @@ class GroupRepository
      */
     public function removeMemberFromGroup(Group $group, Member $member)
     {
-        DB::transaction(function () use ($group, $member) {
+        if((new GroupRotationRepository())->isRotationOrderUpdateBlocked($group)) {
+            throw new ExpectedException('Group cannot be edited until the current circle ends. Amount and frequency are tied to a circle.');
+        }
+        return DB::transaction(function () use ($group, $member) {
             $group->members()->detach($member->id);
             $group->groupRoles()->where('member_id', $member->id)->delete();
+            return $group->fresh();
         });
-
-        return $group->fresh();
     }
 }
