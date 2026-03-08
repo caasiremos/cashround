@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Exceptions\ExpectedException;
+use App\Jobs\NotifyMemberJoinedGroupJob;
 use App\Models\Group;
 use App\Models\GroupInvite;
 use Illuminate\Support\Facades\DB;
@@ -53,6 +54,8 @@ class GroupInviteRepository
             $groupRotationRepository = new GroupRotationRepository();
             $position = $groupRotationRepository->getNextRotationPosition($groupInvite->group);
             $groupInvite->group->members()->syncWithoutDetaching([$memberId => ['rotation_position' => $position]]);
+
+            NotifyMemberJoinedGroupJob::dispatch($groupInvite->group->id, $memberId);
 
             return $groupInvite->group->fresh();
         });
