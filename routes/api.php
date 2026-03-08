@@ -8,12 +8,32 @@ use App\Http\Controllers\MemberLoginApiController;
 use App\Http\Controllers\MomoTransactionApiController;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\WalletTransactionApiController;
+use App\Http\Responses\ApiSuccessResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+Route::get('/version', function () {
+    return new ApiSuccessResponse([
+        'status' => 'ok',
+        'latest_version' => [
+            'android' => '1.3.0',
+            'ios' => '1.3.0',
+        ],
+        'minimum_supported_version' => [
+            'android' => '1.2.0',
+            'ios' => '1.2.0',
+        ],
+        'force_update' => true,
+        'store_url' => [
+            'android' => 'https://play.google.com/store/apps/details?id=com.example.app',
+            'ios' => 'https://apps.apple.com/app/id123456789',
+        ],
+    ]);
+});
 
 Route::post('/member/login', [MemberLoginApiController::class, 'login']);
 Route::post('/member/logout', [MemberLoginApiController::class, 'logout'])->middleware('auth:members');
