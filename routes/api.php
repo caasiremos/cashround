@@ -29,7 +29,7 @@ Route::get('/version', function () {
         ],
         'force_update' => true,
         'store_url' => [
-            'android' => 'https://play.google.com/store/apps/details?id=com.example.app',
+            'android' => 'https://play.google.com/store/apps/details?id=temsoft.com.cashround',
             'ios' => 'https://apps.apple.com/app/id123456789',
         ],
     ]);
