@@ -24,8 +24,8 @@ Route::get('/version', function () {
             'ios' => '1.3.0',
         ],
         'minimum_supported_version' => [
-            'android' => '2.0.0',
-            'ios' => '2.0.0',
+            'android' => '3.0.0',
+            'ios' => '3.0.0',
         ],
         'force_update' => true,
         'store_url' => [
