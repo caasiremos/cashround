@@ -20,8 +20,8 @@ Route::get('/version', function () {
     return new ApiSuccessResponse([
         'status' => 'ok',
         'latest_version' => [
-            'android' => '1.3.0',
-            'ios' => '1.3.0',
+            'android' => '3.0.0',
+            'ios' => '3.0.0',
         ],
         'minimum_supported_version' => [
             'android' => '3.0.0',
