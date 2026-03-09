@@ -20,12 +20,12 @@ Route::get('/version', function () {
     return new ApiSuccessResponse([
         'status' => 'ok',
         'latest_version' => [
-            'android' => '3.0.0',
-            'ios' => '3.0.0',
+            'android' => '5.0.0',
+            'ios' => '5.0.0',
         ],
         'minimum_supported_version' => [
-            'android' => '3.0.0',
-            'ios' => '3.0.0',
+            'android' => '5.0.0',
+            'ios' => '5.0.0',
         ],
         'force_update' => true,
         'store_url' => [

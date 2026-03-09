@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Exceptions\ExpectedException;
-use App\Models\GeneralLedgerAccount;
 use App\Models\Group;
 use App\Models\GroupRole;
 use App\Models\Member;
@@ -19,23 +18,17 @@ class GroupRepository
 
     /**
      * Get the wallet balance of a group
-     *
-     * @param Group $group
-     * @return array
      */
     public function getGroupWalletBalance(Group $group): array
     {
         return [
             'balance' => $group->wallet->balance,
-            'account_number' => $group->wallet->account_number
+            'account_number' => $group->wallet->account_number,
         ];
     }
 
     /**
      * Get the groups of a member
-     *
-     * @param Member $member
-     * @return Collection
      */
     public function getMemberGroups(Member $member): Collection
     {
@@ -44,9 +37,6 @@ class GroupRepository
 
     /**
      * Get the members of a group
-     *
-     * @param Group $group
-     * @return Collection
      */
     public function getGroupMembers(Group $group): Collection
     {
@@ -55,9 +45,6 @@ class GroupRepository
 
     /**
      * Create a new group
-     *
-     * @param array $data
-     * @return Group
      */
     public function createGroup(array $data): Group
     {
@@ -69,7 +56,7 @@ class GroupRepository
                 'start_date' => $data['start_date'],
                 'amount' => $data['amount'],
                 'description' => $data['description'] ?? null,
-                'slug' => Str::slug($data['name']) . '-' . Str::random(5),
+                'slug' => Str::slug($data['name']).'-'.Str::random(5),
             ]);
             $group->members()->attach(auth()->user()->id, ['rotation_position' => 0]);
             $this->createGroupWallet($group);
@@ -83,14 +70,11 @@ class GroupRepository
      * because amount and frequency are tied to a circle. Start date cannot be changed
      * after the first circle has ended.
      *
-     * @param Group $group
-     * @param array $data
-     * @return Group
      * @throws ExpectedException when the current circle is not yet complete, or when changing start date after the first circle
      */
     public function editGroup(Group $group, array $data): Group
     {
-        $groupRotationRepository = new GroupRotationRepository();
+        $groupRotationRepository = new GroupRotationRepository;
         if ($groupRotationRepository->isRotationOrderUpdateBlocked($group)) {
             throw new ExpectedException(
                 'Group cannot be edited until the current circle ends. Amount and frequency are tied to a circle.'
@@ -115,31 +99,23 @@ class GroupRepository
         $group->amount = intval(data_get($filtered, 'amount'));
         $group->save();
 
-
         return $group->fresh();
     }
 
     /**
      * Create a new wallet for a group
-     *
-     * @param Group $group
-     * @return Wallet
      */
     public function createGroupWallet(Group $group): Wallet
     {
         return $group->wallet()->create([
             'group_id' => $group->id,
-            'account_number' => 'CRG' . str_pad(Wallet::max('id') + 1, 5, '0', STR_PAD_LEFT),
+            'account_number' => 'CRG'.str_pad(Wallet::max('id') + 1, 5, '0', STR_PAD_LEFT),
             'balance' => 0,
         ]);
     }
 
-
     /**
      * Get a group by id
-     *
-     * @param int $id
-     * @return Group
      */
     public function getGroupById(int $id): Group
     {
@@ -150,9 +126,8 @@ class GroupRepository
      * Set the role of a member in a group.
      * The same role cannot be held by another member in the same group.
      *
-     * @param array $data
      * @example ['group_id' => 1, 'member_id' => 1, 'role' => 'chairperson']
-     * @return GroupRole
+     *
      * @throws ExpectedException when the role is already assigned to another member in the group
      */
     public function setMemberRole(array $data): GroupRole
@@ -189,9 +164,6 @@ class GroupRepository
 
     /**
      * Remove the role of a member in a group
-     *
-     * @param int $groupId
-     * @param int $memberId
      */
     public function removeMemberRole(int $groupId, int $memberId)
     {
@@ -200,9 +172,6 @@ class GroupRepository
 
     /**
      * Get all transaction auths for a group
-     *
-     * @param int $groupId
-     * @return ?TransactionAuth
      */
     public function getGroupTransactionAuth(int $groupId): ?TransactionAuth
     {
@@ -215,14 +184,14 @@ class GroupRepository
     /**
      * Close a group
      *
-     * @param Group $group
      * @return Group
      */
     public function closeGroup(Group $group)
     {
-        if((new GroupRotationRepository())->isRotationOrderUpdateBlocked($group)) {
+        if ((new GroupRotationRepository)->isRotationOrderUpdateBlocked($group)) {
             throw new ExpectedException('Group cannot be closed until the current circle ends.');
         }
+
         return DB::transaction(function () use ($group) {
             $group->status = Group::STATUS_CLOSED;
             $group->end_date = now();
@@ -235,18 +204,18 @@ class GroupRepository
     /**
      * Leave a group
      *
-     * @param Group $group
-     * @param Member $member
      * @return Group
      */
     public function removeMemberFromGroup(Group $group, Member $member)
     {
-        if((new GroupRotationRepository())->isRotationOrderUpdateBlocked($group)) {
+        if ((new GroupRotationRepository)->isRotationOrderUpdateBlocked($group)) {
             throw new ExpectedException('Member cannot be removed or leave the group until the current circle ends.');
         }
+
         return DB::transaction(function () use ($group, $member) {
             $group->members()->detach($member->id);
             $group->groupRoles()->where('member_id', $member->id)->delete();
+
             return $group->fresh();
         });
     }
