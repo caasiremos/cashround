@@ -58,7 +58,7 @@ class GroupRepository
                 'start_date' => $data['start_date'],
                 'amount' => $data['amount'],
                 'description' => $data['description'] ?? null,
-                'slug' => Str::slug($data['name']).'-'.Str::random(5),
+                'slug' => Str::slug($data['name']) . '-' . Str::random(5),
             ]);
             $group->members()->attach(auth()->user()->id, ['rotation_position' => 0]);
             $this->createGroupWallet($group);
@@ -83,9 +83,14 @@ class GroupRepository
             ->where('status', WalletTransaction::STATUS_SUCCESSFUL)
             ->exists();
 
+        $hasGroupToMemberPayouts = WalletTransaction::where('group_id', $group->id)
+            ->where('transaction_type', TransactionTypeEnum::GROUP_TO_MEMBER->value)
+            ->where('status', WalletTransaction::STATUS_SUCCESSFUL)
+            ->exists();
+
         $isMidCycle = $groupRotationRepository->isRotationOrderUpdateBlocked($group);
 
-        if ($group->completed_circles < 1 && $hasContributions && $isMidCycle) {
+        if (!$hasGroupToMemberPayouts && $hasContributions && $isMidCycle) {
             throw new ExpectedException(
                 'Group cannot be edited until the current circle ends.'
             );
@@ -119,7 +124,7 @@ class GroupRepository
     {
         return $group->wallet()->create([
             'group_id' => $group->id,
-            'account_number' => 'CRG'.str_pad(Wallet::max('id') + 1, 5, '0', STR_PAD_LEFT),
+            'account_number' => 'CRG' . str_pad(Wallet::max('id') + 1, 5, '0', STR_PAD_LEFT),
             'balance' => 0,
         ]);
     }
@@ -204,10 +209,15 @@ class GroupRepository
             ->where('transaction_type', TransactionTypeEnum::MEMBER_TO_GROUP->value)
             ->where('status', WalletTransaction::STATUS_SUCCESSFUL)
             ->exists();
-    
+
+        $hasGroupToMemberPayouts = WalletTransaction::where('group_id', $group->id)
+            ->where('transaction_type', TransactionTypeEnum::GROUP_TO_MEMBER->value)
+            ->where('status', WalletTransaction::STATUS_SUCCESSFUL)
+            ->exists();
+
         $isMidCycle = (new GroupRotationRepository)->isRotationOrderUpdateBlocked($group);
 
-        if ($group->completed_circles < 1 && $hasContributions && $isMidCycle) {
+        if (!$hasGroupToMemberPayouts && $hasContributions && $isMidCycle) {
             throw new ExpectedException('Group cannot be closed because a rotation cycle is in progress.');
         }
 
