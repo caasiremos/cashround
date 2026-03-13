@@ -85,9 +85,9 @@ class GroupRepository
 
         $isMidCycle = $groupRotationRepository->isRotationOrderUpdateBlocked($group);
 
-        if ($hasContributions && $isMidCycle) {
+        if ($group->completed_circles < 1 && $hasContributions && $isMidCycle) {
             throw new ExpectedException(
-                'Group cannot be edited until the current circle ends. Amount and frequency are tied to a circle.'
+                'Group cannot be edited until the current circle ends.'
             );
         }
 
@@ -204,10 +204,10 @@ class GroupRepository
             ->where('transaction_type', TransactionTypeEnum::MEMBER_TO_GROUP->value)
             ->where('status', WalletTransaction::STATUS_SUCCESSFUL)
             ->exists();
-
+    
         $isMidCycle = (new GroupRotationRepository)->isRotationOrderUpdateBlocked($group);
 
-        if ($hasContributions && $isMidCycle) {
+        if ($group->completed_circles < 1 && $hasContributions && $isMidCycle) {
             throw new ExpectedException('Group cannot be closed because a rotation cycle is in progress.');
         }
 
