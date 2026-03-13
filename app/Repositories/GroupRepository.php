@@ -90,7 +90,7 @@ class GroupRepository
 
         $isMidCycle = $groupRotationRepository->isRotationOrderUpdateBlocked($group);
 
-        if (!$hasGroupToMemberPayouts && $hasContributions && $isMidCycle) {
+        if ($hasContributions && (!$hasGroupToMemberPayouts || $isMidCycle)) {
             throw new ExpectedException(
                 'Group cannot be edited until the current circle ends.'
             );
@@ -217,7 +217,7 @@ class GroupRepository
 
         $isMidCycle = (new GroupRotationRepository)->isRotationOrderUpdateBlocked($group);
 
-        if (!$hasGroupToMemberPayouts && $hasContributions && $isMidCycle) {
+        if ($hasContributions && (!$hasGroupToMemberPayouts || $isMidCycle)) {
             throw new ExpectedException('Group cannot be closed because a rotation cycle is in progress.');
         }
 
