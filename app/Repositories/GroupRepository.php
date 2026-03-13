@@ -2,12 +2,14 @@
 
 namespace App\Repositories;
 
+use App\Enums\TransactionTypeEnum;
 use App\Exceptions\ExpectedException;
 use App\Models\Group;
 use App\Models\GroupRole;
 use App\Models\Member;
 use App\Models\TransactionAuth;
 use App\Models\Wallet;
+use App\Models\WalletTransaction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -75,7 +77,15 @@ class GroupRepository
     public function editGroup(Group $group, array $data): Group
     {
         $groupRotationRepository = new GroupRotationRepository;
-        if ($groupRotationRepository->isRotationOrderUpdateBlocked($group)) {
+
+        $hasContributions = WalletTransaction::where('group_id', $group->id)
+            ->where('transaction_type', TransactionTypeEnum::MEMBER_TO_GROUP->value)
+            ->where('status', WalletTransaction::STATUS_SUCCESSFUL)
+            ->exists();
+
+        $isMidCycle = $groupRotationRepository->isRotationOrderUpdateBlocked($group);
+
+        if ($hasContributions && $isMidCycle) {
             throw new ExpectedException(
                 'Group cannot be edited until the current circle ends. Amount and frequency are tied to a circle.'
             );
@@ -185,11 +195,20 @@ class GroupRepository
      * Close a group
      *
      * @return Group
+     *
+     * @throws ExpectedException when a contribution has already been made (cycle is in progress)
      */
     public function closeGroup(Group $group)
     {
-        if ((new GroupRotationRepository)->isRotationOrderUpdateBlocked($group)) {
-            throw new ExpectedException('Group cannot be closed until the current circle ends.');
+        $hasContributions = WalletTransaction::where('group_id', $group->id)
+            ->where('transaction_type', TransactionTypeEnum::MEMBER_TO_GROUP->value)
+            ->where('status', WalletTransaction::STATUS_SUCCESSFUL)
+            ->exists();
+
+        $isMidCycle = (new GroupRotationRepository)->isRotationOrderUpdateBlocked($group);
+
+        if ($hasContributions && $isMidCycle) {
+            throw new ExpectedException('Group cannot be closed because a rotation cycle is in progress.');
         }
 
         return DB::transaction(function () use ($group) {
